@@ -14,7 +14,8 @@ class Sphere : public SceneObj {
   public:
     Sphere(Vector3d center, Pixel_t color, double radius);
     ~Sphere();
-    void hit(Object_hit_t* obj_hit);
+    void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit);
+    Pixel_t getColor();
 };
 
 #endif

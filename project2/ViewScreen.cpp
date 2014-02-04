@@ -6,9 +6,9 @@ ViewScreen::ViewScreen(char viewmode, int pixwidth) {
   // SET THIS DYNAMICALLY LATER
   viewpoint = Vector3d(0.0, 0.0, 0.5);
   view_pixel_width = pixwidth;
-  view_pixel_height = (pixwidth * 5) / 4;
+  view_pixel_height = (pixwidth * 4) / 5;
   view_meter_height = 0.4;
-  view_meter_width = (view_meter_height / 4) * 5;
+  view_meter_width = (view_meter_height * 5 ) / 4;
 }
 
 int ViewScreen::getPixelWidth() {

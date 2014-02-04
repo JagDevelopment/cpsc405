@@ -5,6 +5,9 @@
 
 #include "Raycast.h"
 
+struct Object_hit_t;
+struct Pixel_t;
+
 class SceneObj {
   private:
   protected:
@@ -14,7 +17,8 @@ class SceneObj {
     SceneObj* prev;
     SceneObj(int type);
     ~SceneObj();
-    virtual void hit(Object_hit_t* obj_hit) = 0;
+    virtual void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit) = 0;
+    virtual Pixel_t getColor() = 0;
 };
 
 #endif

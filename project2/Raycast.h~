@@ -30,21 +30,32 @@ typedef struct Pixel_t {
   unsigned char r; // Pixel Red Value
   unsigned char g; // Pixel Green Value
   unsigned char b; // Pixel Blue Value
+  unsigned char a;
   
   // Default Constructor
   Pixel_t() {
     r = MAX_CHANNEL;
     g = MAX_CHANNEL;
     b = MAX_CHANNEL;
+    a = 0;
   }
   Pixel_t(unsigned char r_val, unsigned char g_val, unsigned char b_val) {
     r = r_val;
     g = g_val;
     b = b_val;
+    a = 0;
   }
   // Destructor
   ~Pixel_t() {}
 } Pixel_t;
+
+struct image_t {
+  Pixel_t *pixmap;
+  int w, h;
+  bool exists;
+};
+
+class SceneObj;
 
 typedef struct Object_hit_t {
   double hit_distance;
@@ -53,10 +64,13 @@ typedef struct Object_hit_t {
   Vector3d hit_normal;
   Object_hit_t() {
     hit_object = NULL;
+    hit_distance = -9999;
   }
 } Object_hit_t;
 
-Pixel_t shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene* main_scene);
+class Scene;
+
+Pixel_t shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene* main_scene, viewmode);
 void handleReshape( int w, int h );
 void handleKey( unsigned char key, int x, int y );
 void drawImage();

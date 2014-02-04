@@ -37,8 +37,12 @@ ViewScreen.o: ViewScreen.${C} ViewScreen.${H}
 
 Sphere.o: Sphere.${C} Sphere.${H}
 	${CC} $(CFLAGS) -c Sphere.${C}
+	
+SceneObj.o: SceneObj.${C} SceneObj.${H}
+	${CC} $(CFLAGS) -c SceneObj.${C}
 
-
+Scene.o: Scene.${C} Scene.${H}
+	${CC} $(CFLAGS) -c Scene.${C}
 
 debug:
 	make 'DFLAGS = /usr/lib/debug/malloc.o'

@@ -42,7 +42,7 @@ void Scene::loadScene() {
   // Load Orange Sphere -- Radius 0.300 -- Center (0.1, 0.2, -0.3)
   SceneObj* orangeSphere = new Sphere(Vector3d(0.1, 0.2, -0.3),  
                                       Pixel_t(255, 165, 0),         
-                                      0.300 );                       
+                                      0.075 );                       
   orangeSphere->prev = blueSphere;
   orangeSphere->prev->next = orangeSphere;
   

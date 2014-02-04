@@ -5,6 +5,8 @@
 
 #include "SceneObj.h"
 
+class SceneObj;
+
 class Scene {
   private:
 
