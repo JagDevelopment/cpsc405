@@ -1,16 +1,59 @@
 // Raycast.cpp
 
+/*
+Name: Kevin Haynie
+Date: 2/4/2014
+Project: 2 - Oh Shoot!
+Filename: imgview.cpp
+
+This application is a simple raycaster with options for parallel or perspective viewing,
+image write capabilities, and variable pixel width.
+
+Syntax: ./raycast [l/v] [pixwidth] [filename.ext]
+
+Notes: Pixel width must be greater than/equal to 25 and a multiple of 5 for proper aspect ratio.
+*/
+
 using namespace std;
 #include "Raycast.h"
 
 image_t icontainer;
 
 int main( int argc, char *argv[] ) {
-  char viewmode = 'c';
-  //unsigned int pixwidth = DEFAULT_PIXEL_WIDTH;
-  unsigned int pixwidth = 750;
-  string filename;
+  int viewmode = 1;
+  unsigned int pixwidth = DEFAULT_PIXEL_WIDTH;
+  icontainer.fnameprovided = 0;
   
+  // Parse command line arguments:  raycast [l|v] [pixwidth] [filename.ext]
+  if ( argc > 4 ) {
+    cerr << "Invalid number of arguments provided. Syntax: raycast [l|v] [pixwidth] [filename.ext]" << endl;
+    exit(0);
+  }
+  if ( argc == 4 ) { 
+    string temp( argv[3] );
+    icontainer.fnameprovided = 1;
+    icontainer.filename = temp;
+  }
+  if ( argc >= 3 ) {
+    if ( (atoi(argv[2]) >= 25) && (( atoi(argv[2]) % 5 ) == 0) ) {
+      pixwidth = atoi(argv[2]);
+    } else {
+      cerr << "Please enter a pixwidth greater than 25 and divisible by 5.  Ex: 250" << endl;
+      exit(0);
+    }
+  }
+  if ( argc >= 2 ) {
+    if ( argv[1][0] == 'l' ) {
+      viewmode = 0;
+    } else if ( argv[1][0] == 'v' ) {
+      viewmode = 1;
+    } else {    
+      cerr << "Invalid viewmode.  Choices are 'l' for parallel and 'v' for perspective" << endl;
+      exit(0);
+    }
+  }
+  
+  // List arguments
   for( int i = 1; i < argc; i++ ) {
       cout << "Argument " << i << " is " << argv[i] << ".\n";
   }
@@ -21,6 +64,7 @@ int main( int argc, char *argv[] ) {
   // Create SceneObjects
   Scene *main_scene = new Scene();
   
+  // Pull viewscreen pixel widths/heights and meter widths/heights
   int v_pix_w = main_view->getPixelWidth();
   int v_pix_h = main_view->getPixelHeight();
   double v_met_w = main_view->getMeterWidth();
@@ -32,34 +76,45 @@ int main( int argc, char *argv[] ) {
   icontainer.w = v_pix_w;
   icontainer.h = v_pix_h; 
   
-  // Draw rays, pixel by pixel, and check collision with all scene objs
+  // Determine individual pixel height and width, in meters
   double pix_height = (double)v_met_h / (double)v_pix_h;
   double pix_width = (double)v_met_w / (double)v_pix_w;
-
+  
+  // Initialize values for pixel location
   double x_coord;
   double y_coord;  
   double z_coord = 0.0;
-
+  
+  // Iterate through all rows/columns and shoot ray from camera (origin) to pixel coordinates
   for (int row = 0; row < v_pix_h; row++) {
     y_coord = 0.0 - ( v_met_h / 2.0 ) + ( pix_height * ( row + 0.5 ));
     for (int col = 0; col < v_pix_w; col++) {
       x_coord = 0.0 - ( v_met_w / 2.0 ) + ( pix_width * ( col + 0.5 ));
       Object_hit_t* obj_hit = new Object_hit_t();
       Vector3d target_vector = Vector3d(x_coord, y_coord, z_coord);
-      Pixel_t pixcolor = shoot( Vector3d(target_vector[0], target_vector[1], 0.5),
+      
+      // Store pixel value from closest object hit by shoot
+      Pixel_t pixcolor = shoot( main_view->getViewPoint(),
                                 target_vector,
                                 obj_hit,
                                 main_scene,
                                 viewmode );
+      // If object hit, set pixel value to color values
       if ( obj_hit->hit_object != NULL ) {
         icontainer.pixmap[(row * v_pix_w) + col].r = obj_hit->hit_object->getColor().r;
         icontainer.pixmap[(row * v_pix_w) + col].g = obj_hit->hit_object->getColor().g;
         icontainer.pixmap[(row * v_pix_w) + col].b = obj_hit->hit_object->getColor().b;
+      } else {
+      // If no object hit, set to default background color (Black)
+        icontainer.pixmap[(row * v_pix_w) + col].r = 0;
+        icontainer.pixmap[(row * v_pix_w) + col].g = 0;
+        icontainer.pixmap[(row * v_pix_w) + col].b = 0;
       }
       free(obj_hit);
     }
   }
   
+  // Image now exists, flag for Glut
   icontainer.exists = TRUE;
   
   glutInit( &argc, argv );
@@ -168,9 +223,14 @@ int w = glutGet( GLUT_WINDOW_WIDTH );
   Magick::Image image( w, h, "RGBA", Magick::CharPixel, (void *)pixmap );
   image.flip();
   
+  if ( icontainer.fnameprovided ) {
+    outfilename = icontainer.filename;
+    cout << "User provided filename: " << outfilename << endl;
+  } else {
   /* Prompt user for output filename and write image */
   cout << "Output image filename: ";
   cin >> outfilename;
+  }
   cout << "Attempting to save image to " << outfilename << "...\n";
   
   try {
@@ -187,20 +247,19 @@ int w = glutGet( GLUT_WINDOW_WIDTH );
   return;
 }
 
-Pixel_t shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene* main_scene, char viewmode) {
+Pixel_t shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene* main_scene, int viewmode) {
+  // Start with first object in list
   SceneObj* cur_target = main_scene->headPoly;
+
+  // While currently targetting a valid object, call hit function on object with correct viewmode
   while( cur_target != NULL ) {
-    if ( viewmode == DEFAULT_VIEW_MODE ) {
+    if ( viewmode == 1 ) {
       cur_target->hit( origin, target_vector, obj_hit );
     } else {
       cur_target->hit( Vector3d(target_vector[0], target_vector[1], 0.5), target_vector, obj_hit );
     }
-    // if hit, compare obj_hit->distance
-    // if closer, obj_hit = curPoly
-      // set norm
-      // set distance
-      // set hit point
-      // set obj hit
+    
+    // Move to next target
     cur_target = cur_target->next;
   }
 }
