@@ -1,0 +1,22 @@
+// Sphere.h
+// Name: Kevin Haynie
+// Date: 2/4/2014
+// Project: Project 3 -- Shady
+
+#ifndef LIGHT_H
+#define LIGHT_H
+
+#include "Raycast.h"
+#include "SceneObj.h"
+
+class Light : public SceneObj {
+  private:
+    Pixel_t color;
+  public:
+    Light(Pixel_t color);
+    ~Sphere();
+    void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit);
+    Pixel_t getColor();
+};
+
+#endif

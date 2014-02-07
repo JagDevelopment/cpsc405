@@ -1,0 +1,15 @@
+// TODO :
+
+// Parallel light source -- 60 degree off horizontal plane
+   from right to left at 45 degrees from z-axis
+   Color: (0.8, 0.8, 0.2)
+   
+// Point light source -- (-1, 1, 0.25)
+   Color: (0.4, 0.4, 0.8)
+   
+// Movable camera (camera.txt)
+   Contains: viewpoint, view direction, v_up,
+   
+   Viewing Params: focal length, Screen aspect ratio, screen width
+   
+// 
