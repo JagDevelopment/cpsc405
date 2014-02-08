@@ -19,7 +19,6 @@ class ViewScreen {
     int view_pixel_height;
     double view_meter_width;
     double view_meter_height;
-    char viewmode;
   public:
     ViewScreen(char viewmode, int pixwidth, Vector3d v_point, Vector3d v_dir, Vector3d v_up, double focal_length, double aspect_ratio, double meter_widths);
     ~ViewScreen();
