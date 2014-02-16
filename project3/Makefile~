@@ -15,8 +15,8 @@ H	= h
 CFLAGS 	= -g `Magick++-config --cppflags`
 LFLAGS	= -g `Magick++-config --ldflags`
 LDFLAGS = -lglut -lGL -lGLU -lMagick++ -lm
-HFILES 	= Vector.${H} Utility.${H} ViewScreen.${H} SceneObj.${H} Scene.${H} Sphere.${H} Plane.${H} Light.${H} PointLight.${H} ParallelLight.${H}
-OFILES 	= Vector.o Utility.o ViewScreen.o SceneObj.o Scene.o Sphere.o Plane.o Light.o PointLight.o ParallelLight.o
+HFILES 	= Vector.${H} Utility.${H} ViewScreen.${H} SceneObj.${H} Scene.${H} Sphere.${H} Plane.${H}
+OFILES 	= Vector.o Utility.o ViewScreen.o SceneObj.o Scene.o Sphere.o Plane.o
 PROJECT = Raycast
 PNAME   = raycast
 
@@ -46,15 +46,6 @@ SceneObj.o: SceneObj.${C} SceneObj.${H}
 
 Scene.o: Scene.${C} Scene.${H}
 	${CC} $(CFLAGS) -c Scene.${C}
-	
-Light.o: Light.${C} Light.${H}
-	${CC} $(CFLAGS) -c Light.${C}
-
-PointLight.o: PointLight.${C} PointLight.${H}
-	${CC} $(CFLAGS) -c PointLight.${C}
-	
-ParallelLight.o: ParallelLight.${C} ParallelLight.${H}
-	${CC} $(CFLAGS) -c ParallelLight.${C}
 
 debug:
 	make 'DFLAGS = /usr/lib/debug/malloc.o'
