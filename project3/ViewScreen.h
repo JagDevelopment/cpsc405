@@ -24,6 +24,9 @@ class ViewScreen {
     ViewScreen(char viewmode, int pixwidth, Vector3d v_point, Vector3d v_dir, Vector3d v_up, double focal_length, double aspect_ratio, double meter_widths);
     ~ViewScreen();
     Vector3d getViewPoint();
+    Vector3d getUp();
+    Vector3d getDir();
+    double getFocal();
     int getPixelWidth();
     int getPixelHeight();
     double getMeterWidth();

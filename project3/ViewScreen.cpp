@@ -33,7 +33,19 @@ double ViewScreen::getMeterHeight() {
   return view_meter_height;
 }
 
+double ViewScreen::getFocal() {
+  return focal_length;
+}
+
 Vector3d ViewScreen::getViewPoint() {
   return viewpoint;
+}
+
+Vector3d ViewScreen::getUp() {
+  return v_up;
+}
+
+Vector3d ViewScreen::getDir() {
+  return v_dir;
 }
 
