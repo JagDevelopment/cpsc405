@@ -160,9 +160,13 @@ int main( int argc, char *argv[] ) {
     for (int col = 0; col < v_pix_w; col++) {
       x_coord = 0.0 - ( v_met_w / 2.0 ) + ( pix_width * ( col + 0.5 ));
       Object_hit_t* obj_hit = new Object_hit_t();
-      Vector3d target_vector = Vector3d((x_coord * u_x), 
+      /* Vector3d target_vector = Vector3d((x_coord * u_x), 
                                         (y_coord * u_y),
                                         (z_coord * u_z));
+      */
+      
+      Vector3d target_vector = Vector3d(x_coord, y_coord, z_coord);
+      
       
       // Store pixel value from closest object hit by shoot
       Pixel_t pixcolor = shoot( main_view->getViewPoint(),
