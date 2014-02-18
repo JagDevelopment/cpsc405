@@ -12,8 +12,8 @@ ViewScreen::ViewScreen(char viewmode, int pixwidth, Vector3d v_point, Vector3d v
   this->aspect_ratio = aspect_ratio;
   view_meter_width = meter_width;  
   view_pixel_width = pixwidth;
-  view_pixel_height = (pixwidth * (1.0/aspect_ratio));
-  view_meter_height = (view_meter_width * (1.0/aspect_ratio));
+  view_pixel_height = (pixwidth * (1/aspect_ratio));
+  view_meter_height = (view_meter_width * (1/aspect_ratio));
 
 }
 

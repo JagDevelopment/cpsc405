@@ -145,27 +145,36 @@ int main( int argc, char *argv[] ) {
   double y_coord;  
   double z_coord = 0.0;
   
+  // Find screen Center
+  Vector3d c_0 = main_view->getViewPoint() + (main_view->getFocal() * main_view->getDir().normalize() );
   // Initialize vectors for coordinate system
+  Vector3d u_x = main_view->getDir().normalize() % main_view->getUp();
+  Vector3d u_y = (-main_view->getDir().normalize() % u_x);
+  Vector3d u_z = (-main_view->getDir().normalize());
+  Vector3d p_center;
   
-  Vector3d u_z = -main_view->getDir().normalize();
-  Vector3d u_x = ( u_z % ( main_view->getUp().normalize() ) ).normalize();
-  Vector3d u_y = u_z % u_x;
-  
+  // Calculate new viewscreen coordinates
   cout << "u_x: " << u_x << endl << "u_y: " << u_y << endl << "u_z: " << u_z << endl;
-  
+  cout << "c_0: " << c_0 << endl;
   
   // Iterate through all rows/columns and shoot ray from camera (origin) to pixel coordinates
   for (int row = 0; row < v_pix_h; row++) {
-    y_coord = 0.0 - ( v_met_h / 2.0 ) + ( pix_height * ( row + 0.5 ));
+    y_coord = (-v_met_h / 2.0 ) + ( pix_height * ( row + 0.5 ) );
     for (int col = 0; col < v_pix_w; col++) {
-      x_coord = 0.0 - ( v_met_w / 2.0 ) + ( pix_width * ( col + 0.5 ));
-      Object_hit_t* obj_hit = new Object_hit_t();
-      /* Vector3d target_vector = Vector3d((x_coord * u_x), 
-                                        (y_coord * u_y),
-                                        (z_coord * u_z));
-      */
+      x_coord = (-v_met_w / 2.0 ) + ( pix_width * ( col + 0.5 ) );
+      p_center = c_0 + ( x_coord * u_x ) + ( y_coord * u_y );
       
-      Vector3d target_vector = Vector3d(x_coord, y_coord, z_coord);
+      Vector3d target_vector;
+      
+      if ( viewmode == 0 ) {
+        // 'l' -- parallel - orthog
+        target_vector = Vector3d( p_center[0], p_center[1], -main_view->getFocal() );
+      } else {
+        // 'v' --  perspective
+        target_vector = Vector3d(p_center - main_view->getViewPoint()).normalize();
+      }
+      
+      Object_hit_t* obj_hit = new Object_hit_t();
       
       
       // Store pixel value from closest object hit by shoot
@@ -328,11 +337,7 @@ Pixel_t shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Sc
 
   // While currently targetting a valid object, call hit function on object with correct viewmode
   while( cur_target != NULL ) {
-    if ( viewmode == 1 ) {
-      cur_target->hit( origin, target_vector, obj_hit );
-    } else {
-      cur_target->hit( Vector3d(target_vector[0], target_vector[1], 0.5), target_vector, obj_hit );
-    }
+    cur_target->hit( origin, target_vector, obj_hit );
     
     // Move to next target
     cur_target = cur_target->next;
