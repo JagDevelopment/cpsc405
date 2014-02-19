@@ -207,9 +207,9 @@ int main( int argc, char *argv[] ) {
           cur_light = cur_light -> next;
         }
       
-        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_hit->hit_object->getColor().r);
-        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_hit->hit_object->getColor().g);
-        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_hit->hit_object->getColor().b);
+        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_hit->hit_color.r);
+        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_hit->hit_color.g);
+        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_hit->hit_color.b);
       } else {
       // If no object hit, set to default background color (Black)
         icontainer.pixmap[(row * v_pix_w) + col].r = 0;

@@ -10,6 +10,7 @@
 #include "SceneObj.h"
 #include "Scene.h"
 #include "ViewScreen.h"
+#include "Light.h"
 
 #include <cstdlib>
 #include <iostream>

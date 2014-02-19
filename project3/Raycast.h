@@ -80,6 +80,7 @@ typedef struct Object_hit_t {
   SceneObj* hit_object;
   Vector3d hit_point;
   Vector3d hit_normal;
+  Pixel_t hit_color;
   Object_hit_t() {
     hit_object = NULL;
     hit_distance = 99999;

@@ -7,6 +7,9 @@ Sphere::Sphere(Vector3d center, Pixel_t *color, double radius, Vector3d diffuse,
   this->center = center;
   this->radius = radius;
   this->color = *color;
+  this->diffuse = diffuse;
+  this->specular = specular;
+  this->specularExponent = specularExponent;
 }
 
 // Determine if ray hits a sphere
@@ -26,7 +29,7 @@ void Sphere::hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit)
     obj_hit->hit_distance = t;
     obj_hit->hit_point = x_hit;
     obj_hit->hit_object = this;
-    obj_hit->hit_normal = Vector3d(0.0, 0.0, 0.0);
+    obj_hit->hit_normal = x_hit - this->center;
   } else if (d == this->radius) {
     // hit x1
     obj_hit->hit_distance = t_close;

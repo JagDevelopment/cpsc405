@@ -18,6 +18,7 @@ Pixel_t PointLight::getColor() {
 }
 
 void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene) {
+  Pixel_t c;
   Object_hit_t *test_obj = new Object_hit_t();
   Vector3d light_ray = (hit_obj->hit_point - this->point).normalize();
             // Iterate through each light, shoot ray from light to hit_location
@@ -33,7 +34,18 @@ void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene) {
   }
   
   if ( test_obj->hit_object == NULL ) {
+    Vector3d origin = this->point;
+    Vector3d target = hit_obj->hit_point;
+    Vector3d ray = target-origin;
+    Vector3d obj_diffuse = hit_obj->hit_object->getDiffuse();
+    Vector3d obj_specular = hit_obj->hit_object->getSpecular();
+    Pixel_t light_color = this->color;
+    float i_t;
+    float i_s;
+    float i_d = -(ray * hit_obj->hit_normal);
     
+    
+    // I_d 
   }
   
   // do stuff

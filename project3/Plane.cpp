@@ -28,9 +28,10 @@ void Plane::hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit) 
         obj_hit->hit_object = this;
         obj_hit->hit_distance = t;
         obj_hit->hit_point = origin + ( t * u_ray );
+        obj_hit->hit_color = this->color;
         
         // CHANGE THIS WHEN LIGHTING/DIFFUSE IS ADDED -- CALCULATE HIT NORM FOR RECURSIVE TRACING
-        obj_hit->hit_normal = Vector3d ( 0.0, 0.0, 0.0 );
+        obj_hit->hit_normal = this->normal;
       }
     }
   }
