@@ -3,21 +3,19 @@
 // Date: 2/4/2014
 // Project: Project 2 -- Oh Shoot!
 
-#ifndef SPHERE_H
-#define SPHERE_H
+#ifndef PARALLELLIGHT_H
+#define PARALLELLIGHT_H
 
 #include "Raycast.h"
 #include "SceneObj.h"
+#include "Light.h"
 
-class Sphere : public SceneObj {
+class ParallelLight : public Light {
   private:
-    Vector3d center;
-    double radius;
-    Pixel_t color;
+
   public:
-    Sphere(Vector3d center, Pixel_t color, double radius);
-    ~Sphere();
-    void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit);
+    ParallelLight();
+    ~ParallelLight();
     Pixel_t getColor();
 };
 

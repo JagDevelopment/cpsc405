@@ -7,7 +7,6 @@
 #define SCENE_H
 
 #include "SceneObj.h"
-#include "Light.h"
 
 class SceneObj;
 

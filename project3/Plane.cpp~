@@ -8,9 +8,6 @@ Plane::Plane(Vector3d point, Pixel_t *color, Vector3d normal, Vector3d diffuse, 
   this->point = point;
   this->normal = normal.normalize();
   this->color = *color;
-  this->diffuse = diffuse;
-  this->specular = specular;
-  this->specularExponent = specularExponent;
 }
 
 void Plane::hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit) {

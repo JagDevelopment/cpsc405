@@ -10,7 +10,7 @@
 #include "SceneObj.h"
 #include "Light.h"
 
-struct Object_hit_t;
+struct Obj_hit_t;
 
 class PointLight : public Light {
   private:
@@ -21,7 +21,7 @@ class PointLight : public Light {
     ~PointLight();
     Vector3d getPoint();
     Pixel_t getColor();
-    void doLighting(Object_hit_t *hit_obj, Scene *main_scene);
+    void doLighting(Obj_hit_t *hit_obj, Scene *main_scene);
 };
 
 #endif

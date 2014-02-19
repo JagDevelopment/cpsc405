@@ -7,11 +7,6 @@
 // Point light source -- (-1, 1, 0.25)
    Color: (0.4, 0.4, 0.8)
    
-// Movable camera (camera.txt)
-   Contains: viewpoint, view direction, v_up,
-   
-   Viewing Params: focal length, Screen aspect ratio, screen width
-   
 // Object materials:
    Red/Purple: Full matte, no specular
    Green: Very shiny, small specular highlight, little diffuse

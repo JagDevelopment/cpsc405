@@ -24,7 +24,7 @@ class Sphere : public SceneObj {
     Pixel_t getColor();
     Vector3d getDiffuse();
     Vector3d getSpecular();
-    int getExponent();
+    int getExponent;
 };
 
 #endif
