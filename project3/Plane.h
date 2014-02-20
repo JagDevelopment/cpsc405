@@ -14,16 +14,16 @@ class Plane : public SceneObj {
     Vector3d point;
     Vector3d normal;
     Pixel_t color;
-    Vector3d diffuse;
-    Vector3d specular;
+    float diffuse;
+    float specular;
     int specularExponent;
   public:
-    Plane(Vector3d point, Pixel_t *color, Vector3d normal, Vector3d diffuse, Vector3d specular, int specularExponent);
+    Plane(Vector3d point, Pixel_t *color, Vector3d normal, float diffuse, float specular, int specularExponent);
     ~Plane();
     void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit);
     Pixel_t getColor();
-    Vector3d getDiffuse();
-    Vector3d getSpecular();
+    float getDiffuse();
+    float getSpecular();
     int getExponent();
 };
 

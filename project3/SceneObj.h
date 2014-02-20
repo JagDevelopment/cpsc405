@@ -22,8 +22,8 @@ class SceneObj {
     ~SceneObj();
     virtual void hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit) = 0;
     virtual Pixel_t getColor() = 0;
-    virtual Vector3d getDiffuse() = 0;
-    virtual Vector3d getSpecular() = 0;
+    virtual float getDiffuse() = 0;
+    virtual float getSpecular() = 0;
     virtual int getExponent() = 0;
 };
 

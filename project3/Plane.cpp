@@ -2,7 +2,7 @@
 
 #include "Plane.h"
 
-Plane::Plane(Vector3d point, Pixel_t *color, Vector3d normal, Vector3d diffuse, Vector3d specular, int specularExponent) 
+Plane::Plane(Vector3d point, Pixel_t *color, Vector3d normal, float diffuse, float specular, int specularExponent) 
   : SceneObj::SceneObj(PLANE) {
   // Initialize point on plane, color, and unit vector normal to plane.
   this->point = point;
@@ -41,11 +41,11 @@ Pixel_t Plane::getColor() {
   return color;
 }
 
-Vector3d Plane::getDiffuse() {
+float Plane::getDiffuse() {
   return diffuse;
 }
 
-Vector3d Plane::getSpecular() {
+float Plane::getSpecular() {
   return specular;
 }
 

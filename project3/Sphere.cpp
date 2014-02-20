@@ -2,7 +2,7 @@
 
 #include "Sphere.h"
 
-Sphere::Sphere(Vector3d center, Pixel_t *color, double radius, Vector3d diffuse, Vector3d specular, int specularExponent) 
+Sphere::Sphere(Vector3d center, Pixel_t *color, double radius, float diffuse, float specular, int specularExponent) 
   : SceneObj::SceneObj(SPHERE) {
   this->center = center;
   this->radius = radius;
@@ -36,7 +36,7 @@ void Sphere::hit(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit)
     obj_hit->hit_distance = t_close;
     obj_hit->hit_point = x_close;
     obj_hit->hit_object = this;
-    obj_hit->hit_normal = Vector3d(0.0, 0.0, 0.0);// DO THIS
+    obj_hit->hit_normal = (x_close-this->center).normalize();// DO THIS
   }  // no hit
 }
 
@@ -44,11 +44,11 @@ Pixel_t Sphere::getColor() {
   return color;
 }
 
-Vector3d Sphere::getDiffuse() {
+float Sphere::getDiffuse() {
   return diffuse;
 }
 
-Vector3d Sphere::getSpecular() {
+float Sphere::getSpecular() {
   return specular;
 }
 

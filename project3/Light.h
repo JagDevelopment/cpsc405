@@ -13,6 +13,7 @@
 struct Pixel_t;
 struct Object_hit_t;
 class Scene;
+class ViewScreen;
 
 class Light {
   private:
@@ -22,7 +23,7 @@ class Light {
     Light();
     ~Light();
     virtual Pixel_t getColor() = 0;
-    virtual void doLighting(Object_hit_t *hit_obj, Scene *main_scene) = 0;
+    virtual void doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view) = 0;
 };
 
 #endif

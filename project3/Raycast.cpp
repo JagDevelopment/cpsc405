@@ -203,7 +203,7 @@ int main( int argc, char *argv[] ) {
       
         while( cur_light != NULL ) {
           // Test to see if there is an object between light and point
-          cur_light->doLighting( obj_hit, main_scene );
+          cur_light->doLighting( obj_hit, main_scene, main_view );
           cur_light = cur_light -> next;
         }
       
