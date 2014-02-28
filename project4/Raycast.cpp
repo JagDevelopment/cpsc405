@@ -67,15 +67,17 @@ int main( int argc, char *argv[] ) {
   float meter_width = 0.5;                     // Default meter width
 
   // Read in arguments from "camera.txt"
-  string camargs[6] = { "viewpoint", "v_dir", "v_up", "focal_length", "aspect_ratio", "screen_width" };
+  string camargs[8] = { "viewpoint", "v_dir", "v_up", "focal_length", "aspect_ratio", "screen_width", "sphere", "pointlight" };
   ifstream infile ( "camera.txt" );
   int flag = -1;
   string buffer;
-  double t1, t2, t3;
-  
+
+  // Create SceneObjects
+  Scene *main_scene = new Scene();
+    
   while ( infile >> buffer ) {
     flag = -1;
-    for( int i = 0; i < 6; i++ ) {
+    for( int i = 0; i < 8; i++ ) {
       if( camargs[i] == buffer ) {
         flag = i;
       }
@@ -111,6 +113,14 @@ int main( int argc, char *argv[] ) {
         infile >> meter_width;
         cout << "Loaded screen meter width: " << meter_width << endl;
         break;
+      case 6: // sphere
+        cout << "Loading circle..." << endl;
+        main_scene->loadSphere( infile );
+        break;
+      case 7: // pointlight
+        cout << "Loading point light..." << endl;
+        main_scene->loadPointLight( infile );
+        break;
       default:
         break;
     }
@@ -119,9 +129,7 @@ int main( int argc, char *argv[] ) {
   // Create Viewscreen
   ViewScreen *main_view = new ViewScreen(viewmode, pixwidth, v_point, v_dir,
                                          v_up, focal_length, aspect_ratio, meter_width);
-  // Create SceneObjects
-  Scene *main_scene = new Scene();
-  
+
   // Pull viewscreen pixel widths/heights and meter widths/heights
   int v_pix_w = main_view->getPixelWidth();
   int v_pix_h = main_view->getPixelHeight();
@@ -166,7 +174,7 @@ int main( int argc, char *argv[] ) {
       
       if ( viewmode == 0 ) {
         // 'l' -- parallel - orthog
-        target_vector = Vector3d( main_view->getDir() );
+        target_vector = Vector3d( p_center );
       } else {
         // 'v' -- perspective
         target_vector = Vector3d(p_center - main_view->getViewPoint()).normalize();
@@ -175,7 +183,7 @@ int main( int argc, char *argv[] ) {
       Object_hit_t* obj_hit = new Object_hit_t();
       Pixel_t *obj_illum = new Pixel_t();
       
-      // function( origin, vector, scene, view, obj_hit, depth )
+      
       // **********************************************************************
 
       shoot( main_view->getViewPoint(), target_vector, obj_hit, main_scene, main_view, obj_illum, depth);

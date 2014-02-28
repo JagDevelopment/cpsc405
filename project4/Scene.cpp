@@ -14,6 +14,7 @@ Filename: Scene.cpp
 #include "ParallelLight.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Raycast.h"
 #include <cstddef>
 
 Scene::Scene() {
@@ -29,140 +30,133 @@ Scene::~Scene() {
 }
 
 void Scene::loadScene() {
-  // Clean this up later to read from file and load automatically
-  // CREATE SCENE
-  
-  // Load Red Sphere -- Radius 0.050 -- Center (-0.3, 0.1, -0.5)
-  SceneObj* redSphere = new Sphere(Vector3d(-0.3, 0.1, -0.5),    
-                                   new Pixel_t(1.0, 0.0, 0.0),           
-                                   0.050,
-                                   0.8, // Diffuse coeff
-                                   0.9, // Specular coeff
-                                   100 ); // Specular exp
+  return;
+}
 
-  headPoly = redSphere;
-  redSphere->prev = NULL;
+void Scene::loadSphere( ifstream& infile ) {
+  string camargs[8] = { "center", "color", "radius", "diffuse", "specular", "spec_exp" };
+  int flag = -1;
+  int param_count = 0;
+  string buffer;
   
-  // Load Green Sphere -- Radius 0.150 -- Center (0.0, -0.2, -0.8)
-  SceneObj* greenSphere = new Sphere(Vector3d(0.0, -0.2, -0.8),  
-                                     new Pixel_t(0.0, 1.0, 0.0),           
-                                     0.150,
-                                     0.8,
-                                     0.9,
-                                     100 );                     
-  greenSphere->prev = redSphere;
-  greenSphere->prev->next = greenSphere;
-  
-  // Load Blue Sphere -- Radius 0.300 -- Center (0.3, 0.3, -1.1)
-  SceneObj* blueSphere = new Sphere(Vector3d(0.3, 0.3, -1.1),    
-                                    new Pixel_t(0.0, 0.0, 1.0),           
-                                    0.300,
-                                    0.8,
-                                    0.9,
-                                    100 );                     
-  blueSphere->prev = greenSphere;
-  blueSphere->prev->next = blueSphere;
-  
-  // Load Orange Sphere -- Radius 0.300 -- Center (0.1, 0.2, -0.3)
-  SceneObj* orangeSphere = new Sphere(Vector3d(0.1, 0.2, -0.3),  
-                                      new Pixel_t(1.0, 0.6471, 0.0),         
-                                      0.075,
-                                      0.8,
-                                      0.9,
-                                      100 );                          
-  orangeSphere->prev = blueSphere;
-  orangeSphere->prev->next = orangeSphere;
-  
-  // Load Purple Sphere -- Radius 0.225 -- Center (-0.2, -0.25, -0.4)
-  SceneObj* purpleSphere = new Sphere(Vector3d(-0.2, -0.25, -0.4),
-                                      new Pixel_t(.6275, 0.125, 0.955),        
-                                      0.225,
-                                      0.8,
-                                      0.9,
-                                      100 );   
+  Vector3d center;
+  Pixel_t* color = new Pixel_t();
+  float radius;
+  float diffuse;
+  float specular;
+  int spec_exp;
 
-  purpleSphere->prev = orangeSphere;
-  purpleSphere->prev->next = purpleSphere;
-                                        
-  SceneObj* backPlane = new Plane(Vector3d(0.0, 0.0, -1.5),
-                                  new Pixel_t(0.455, 0.455, 0.455),
-                                  Vector3d(0.0, 0.0, 1.0),
-                                  0.8,
-                                  0.9,
-                                  100 );
-  backPlane->prev = purpleSphere;
-  backPlane->prev->next = NULL;   
+  // Create SceneObjects
+   
+  while ( param_count < 6 && infile >> buffer ) {
+    flag = -1;
+    for( int i = 0; i < 6; i++ ) {
+      if( camargs[i] == buffer ) {
+        flag = i;
+      }
+    }
+    switch( flag ) {
+      case 0: // center
+        param_count++;
+        infile >> center[0];
+        infile >> center[1];
+        infile >> center[2];
+        cout << "Loaded center: " << center << endl;
+        break;
+      case 1: // color
+        param_count++;
+        infile >> color->r;
+        infile >> color->g;
+        infile >> color->b;
+        cout << "Loaded color: " << color->r << ", " << color->g << ", " << color->b << "." << endl;
+        break;
+      case 2: // radius
+        param_count++;
+        infile >> radius;
+        cout << "Loaded radius: " << radius << endl;
+        break;
+      case 3: // diffuse
+        param_count++;
+        infile >> diffuse;
+        cout << "Loaded diffuse: " << diffuse << endl;
+        break;
+      case 4: // specular
+        param_count++;
+        infile >> specular;
+        cout << "Loaded specular: " << specular << endl;
+        break;
+      case 5: // spec_exp
+        param_count++;
+        infile >> spec_exp;
+        cout << "Loaded specular exponent: " << spec_exp << endl;
+        break;
+      default:
+        break;
+    }
+  }
+  
+  SceneObj *newSphere = new Sphere( center, color, radius, diffuse, specular, spec_exp );
+  if ( headPoly == NULL ) {
+    headPoly = newSphere;
+    headPoly->next = NULL;
+    headPoly->prev = NULL;
+  } else {
+    SceneObj* cursor = headPoly;
+    while ( cursor->next != NULL ) {
+      cursor = cursor->next;
+    }
+    cursor->next = newSphere;
+    newSphere->prev = cursor;
+  }
+}
 
-  SceneObj* topPlane = new Plane(Vector3d(0.0, 0.70, -1.45),
-                                  new Pixel_t(0.745, 0.745, 0.745),
-                                  Vector3d(0.0, -0.25, 1.0),
-                                  0.8,
-                                  0.9,
-                                  100 );
-  topPlane->prev = backPlane;
-  topPlane->prev->next = topPlane;                                  
-                                  
-  SceneObj* bottomPlane = new Plane(Vector3d(0.0, -0.45, -1.45),
-                                  new Pixel_t(0.7451, 0.7451, 0.7451),
-                                  Vector3d(0.0, 0.25, 0.65), 
-                                  0.8,
-                                  0.9,
-                                  100 );
-                                  
-  bottomPlane->prev = topPlane;
-  bottomPlane->prev->next = bottomPlane;
-                                  
-  SceneObj* leftPlane = new Plane(Vector3d(-0.65, 0.0, -1.45),
-                                  new Pixel_t(0.5294, 0.5294, 0.5294),
-                                  Vector3d(0.25, 0.0, 1.0),
-                                  0.8,
-                                  0.9,
-                                  100 );
-                                  
-  leftPlane->prev = bottomPlane;
-  leftPlane->prev->next = leftPlane;
-                                  
-  SceneObj* rightPlane = new Plane(Vector3d(0.65, 0.0, -1.45),
-                                  new Pixel_t(0.5294, 0.5294, 0.5294),
-                                  Vector3d(-0.25, 0.0, 1.0),
-                                  0.8,
-                                  0.9,
-                                  100 );
-  rightPlane->prev = leftPlane;
-  rightPlane->prev->next = rightPlane;
-  rightPlane->next = NULL;
- 
-  tailPoly = rightPlane;
+void Scene::loadPointLight( ifstream& infile ) {
+  string camargs[8] = { "point", "color" };
+  int flag = -1;
+  int param_count = 0;
+  string buffer;
   
-  // LOAD LIGHTS
-
-  Light* pointLight1 = new PointLight( Vector3d( -1.0, 1.0, 5.0 ),
-                                                new Pixel_t(0.4, 0.4, 0.8) );
-
-  headLight = pointLight1;                              
-  pointLight1->prev = NULL;
-                      
-  Light* pointLight2 = new PointLight( Vector3d( 2.0, 0.5, 0.0 ),
-                                                new Pixel_t(0.8, 0.8, 0.2) );
-                              
-  pointLight2->prev = pointLight1;                                                
-  pointLight2->prev->next = pointLight2;
+  Vector3d point;
+  Pixel_t* color = new Pixel_t();
+    
+  while ( param_count < 2 && infile >> buffer ) {
+    flag = -1;
+    for( int i = 0; i < 2; i++ ) {
+      if( camargs[i] == buffer ) {
+        flag = i;
+      }
+    }
+    switch( flag ) {
+      case 0: // point
+        param_count++;
+        infile >> point[0];
+        infile >> point[1];
+        infile >> point[2];
+        cout << "Loaded point: " << point << endl;
+        break;
+      case 1: // color
+        param_count++;
+        infile >> (color->r);
+        infile >> (color->g);
+        infile >> (color->b);
+        cout << "Loaded color: " << color->r << ", " << color->g << ", " << color->b << "." << endl;
+        break;
+      default:
+        break;  
+    }
+  }
   
-  Light* pointLight3 = new PointLight( Vector3d( 1.0, 0.5, -5.0 ),
-                                                new Pixel_t(0.8, 0.8, 0.2) );
-
-  pointLight3->prev = pointLight2;
-  pointLight3->prev->next = pointLight3;
-  
-  tailLight = pointLight3;
-  
-  /*
-  Light* parallelLight = new ParallelLight( Vector3d( -1.0, -1.0, -0.75 ),
-                                            new Pixel_t( 0.8, 0.8, 0.2));
-  parallelLight->prev = pointLight;
-  parallelLight->prev->next = parallelLight;
-  parallelLight->next = NULL;
-  */
-  //tailLight = parallelLight;
-  
+  Light *newLight = new PointLight( point, color );
+  if ( headLight == NULL ) {
+    headLight = newLight;
+    headLight->next = NULL;
+    headLight->prev = NULL;
+  } else {
+    Light* cursor = headLight;
+    while ( cursor->next != NULL ) {
+      cursor = cursor->next;
+    }
+    cursor->next = newLight;
+    newLight->prev = cursor;
+  }
 }
