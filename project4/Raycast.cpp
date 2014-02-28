@@ -345,7 +345,7 @@ void shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene
   Pixel_t *ref_illum = new Pixel_t();
   Object_hit_t *ref_obj_hit = new Object_hit_t();
 
-  if ( depth <= 3 ) {
+  if ( depth <= 0 ) {
     return;
   }
       /*

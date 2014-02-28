@@ -49,7 +49,7 @@ void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen
     cur_obj = cur_obj->next;
   }
   
-  if ( test_obj->hit_object == NULL ) {
+  if ( test_obj->hit_distance > (hit_obj->hit_point - this->point).norm() ) {
     float obj_diffuse = hit_obj->hit_object->getDiffuse();
     float obj_specular = hit_obj->hit_object->getSpecular();
     float dotprod = light_ray * hit_obj->hit_normal;
