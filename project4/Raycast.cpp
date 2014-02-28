@@ -174,7 +174,7 @@ int main( int argc, char *argv[] ) {
       
       if ( viewmode == 0 ) {
         // 'l' -- parallel - orthog
-        target_vector = Vector3d( p_center );
+        target_vector = Vector3d( main_view->getDir() );
       } else {
         // 'v' -- perspective
         target_vector = Vector3d(p_center - main_view->getViewPoint()).normalize();
@@ -186,7 +186,7 @@ int main( int argc, char *argv[] ) {
       
       // **********************************************************************
 
-      shoot( main_view->getViewPoint(), target_vector, obj_hit, main_scene, main_view, obj_illum, depth);
+      shoot( p_center, target_vector, obj_hit, main_scene, main_view, obj_illum, depth);
       
       // **********************************************************************      
 
