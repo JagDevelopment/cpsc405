@@ -89,7 +89,7 @@ typedef struct Object_hit_t {
   Object_hit_t() {
     hit_object = NULL;
     prev_hit_object = NULL;
-    hit_distance = 99999;
+    hit_distance = INFINITY;
   }
 } Object_hit_t;
 
