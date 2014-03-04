@@ -67,7 +67,7 @@ int main( int argc, char *argv[] ) {
   float meter_width = 0.5;                     // Default meter width
 
   // Read in arguments from "camera.txt"
-  string camargs[8] = { "viewpoint", "v_dir", "v_up", "focal_length", "aspect_ratio", "screen_width", "sphere", "pointlight" };
+  string camargs[9] = { "viewpoint", "v_dir", "v_up", "focal_length", "aspect_ratio", "screen_width", "sphere", "pointlight", "plane" };
   ifstream infile ( "camera.txt" );
   int flag = -1;
   string buffer;
@@ -77,7 +77,7 @@ int main( int argc, char *argv[] ) {
     
   while ( infile >> buffer ) {
     flag = -1;
-    for( int i = 0; i < 8; i++ ) {
+    for( int i = 0; i < 9; i++ ) {
       if( camargs[i] == buffer ) {
         flag = i;
       }
@@ -114,12 +114,16 @@ int main( int argc, char *argv[] ) {
         cout << "Loaded screen meter width: " << meter_width << endl;
         break;
       case 6: // sphere
-        cout << "Loading circle..." << endl;
+        cout << "Loading sphere..." << endl;
         main_scene->loadSphere( infile );
         break;
       case 7: // pointlight
         cout << "Loading point light..." << endl;
         main_scene->loadPointLight( infile );
+        break;
+      case 8: // plane
+        cout << "Loading plane..." << endl;
+        main_scene->loadPlane( infile );
         break;
       default:
         break;
@@ -290,7 +294,7 @@ break;
     case 'q': // Program exit
     case 'Q':
     case 27: // esc
-      exit( 0 );
+      exit(0);
       
     default: // invalid keypress, ignore
       return;

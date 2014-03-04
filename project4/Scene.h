@@ -27,6 +27,7 @@ class Scene {
     ~Scene();
     void loadScene();
     void loadSphere( ifstream& infile );
+    void loadPlane( ifstream& infile );
     void loadPointLight( ifstream& infile );
 };
 

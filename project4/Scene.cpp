@@ -110,6 +110,85 @@ void Scene::loadSphere( ifstream& infile ) {
   }
 }
 
+void Scene::loadPlane( ifstream& infile ) {
+  string camargs[8] = { "point", "color", "normal", "diffuse", "specular", "spec_exp" };
+  int flag = -1;
+  int param_count = 0;
+  string buffer;
+  
+  Vector3d point;
+  Vector3d normal;
+  Pixel_t* color = new Pixel_t();
+  float diffuse;
+  float specular;
+  int spec_exp;
+
+  // Create SceneObjects
+   
+  while ( param_count < 6 && infile >> buffer ) {
+    flag = -1;
+    for( int i = 0; i < 6; i++ ) {
+      if( camargs[i] == buffer ) {
+        flag = i;
+      }
+    }
+    switch( flag ) {
+      case 0: // center
+        param_count++;
+        infile >> point[0];
+        infile >> point[1];
+        infile >> point[2];
+        cout << "Loaded point: " << point << endl;
+        break;
+      case 1: // color
+        param_count++;
+        infile >> color->r;
+        infile >> color->g;
+        infile >> color->b;
+        cout << "Loaded color: " << color->r << ", " << color->g << ", " << color->b << "." << endl;
+        break;
+      case 2: // normal
+        param_count++;
+        infile >> normal[0];
+        infile >> normal[1];
+        infile >> normal[2];
+        cout << "Loaded plane normal: " << normal << endl;
+        break;
+      case 3: // diffuse
+        param_count++;
+        infile >> diffuse;
+        cout << "Loaded diffuse: " << diffuse << endl;
+        break;
+      case 4: // specular
+        param_count++;
+        infile >> specular;
+        cout << "Loaded specular: " << specular << endl;
+        break;
+      case 5: // spec_exp
+        param_count++;
+        infile >> spec_exp;
+        cout << "Loaded specular exponent: " << spec_exp << endl;
+        break;
+      default:
+        break;
+    }
+  }
+  
+  SceneObj *newPlane = new Plane( point, color, normal, diffuse, specular, spec_exp );
+  if ( headPoly == NULL ) {
+    headPoly = newPlane;
+    headPoly->next = NULL;
+    headPoly->prev = NULL;
+  } else {
+    SceneObj* cursor = headPoly;
+    while ( cursor->next != NULL ) {
+      cursor = cursor->next;
+    }
+    cursor->next = newPlane;
+    newPlane->prev = cursor;
+  }
+}
+
 void Scene::loadPointLight( ifstream& infile ) {
   string camargs[8] = { "point", "color" };
   int flag = -1;
