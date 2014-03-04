@@ -25,7 +25,7 @@ class PointLight : public Light {
     ~PointLight();
     Vector3d getPoint();
     Pixel_t getColor();
-    void doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum);
+    void doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc);
 };
 
 #endif

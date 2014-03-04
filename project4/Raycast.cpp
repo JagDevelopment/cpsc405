@@ -186,13 +186,19 @@ int main( int argc, char *argv[] ) {
       
       // **********************************************************************
 
-      shoot( p_center, target_vector, obj_hit, main_scene, main_view, obj_illum, depth);
+      shoot( p_center, target_vector, obj_hit, main_scene, main_view, obj_illum, 0);
       
       // **********************************************************************      
-
-      icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_illum->r);
-      icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_illum->g);
-      icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_illum->b);
+      
+      if ( obj_hit->hit_distance == INFINITY ) {
+        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(0);
+        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(0);
+        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(0);
+      } else {
+        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_illum->r);
+        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_illum->g);
+        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_illum->b);
+      }
       free(obj_hit);
       free(obj_illum);
     }
@@ -345,16 +351,10 @@ void shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene
   Pixel_t *ref_illum = new Pixel_t();
   Object_hit_t *ref_obj_hit = new Object_hit_t();
 
-  if ( depth <= 0 ) {
+  // Reached end of recursion
+  if ( depth >= 8 ) {
     return;
   }
-      /*
-      if ( depth <= 0 ) {
-        obj_illum->r = 0;
-        obj_illum->g = 0;
-        obj_illum->b = 0;        
-        return;
-      }*/
 
   // Start with first object in list
   SceneObj* cur_target = main_scene->headPoly;
@@ -371,30 +371,43 @@ void shoot(Vector3d origin, Vector3d target_vector, Object_hit_t* obj_hit, Scene
                                
   // If object hit, do reflection, lighting, and set pixel value to color values
   
-  if ( obj_hit->hit_object != NULL ) {
-
+  if ( obj_hit->hit_distance < INFINITY && obj_hit -> hit_distance > 0.001 ) {
     Vector3d new_origin = obj_hit->hit_point;
     Vector3d u_prime = target_vector - ( obj_hit->hit_normal * ( target_vector * obj_hit->hit_normal ) ) * 2;
     u_prime = u_prime.normalize();
     ref_obj_hit->prev_hit_object = obj_hit->hit_object;
-    shoot( new_origin, u_prime, ref_obj_hit, main_scene, main_view, ref_illum, depth-1);
+    shoot( new_origin, u_prime, ref_obj_hit, main_scene, main_view, ref_illum, depth + 1);
 
+    // Factor in ambient light at location
     obj_illum->r = 0.2 * obj_hit->hit_color.r;
     obj_illum->g = 0.2 * obj_hit->hit_color.g;                                   
     obj_illum->b = 0.2 * obj_hit->hit_color.b;        
 
+    // Weight object illumination and reflection illumination, and sum
     obj_illum->r = (obj_illum->r * 0.3) + ( ref_illum->r * 0.7 );
     obj_illum->g = (obj_illum->g * 0.3) + ( ref_illum->g * 0.7 );
     obj_illum->b = (obj_illum->b * 0.3) + ( ref_illum->b * 0.7 );
     
+    Vector3d view_loc;
+    
+    if ( depth == 0 ) {
+      view_loc = main_view->getViewPoint();
+    } else {
+      view_loc = origin;
+    }
+    
     Light *cur_light = main_scene->headLight;
     while( cur_light != NULL ) {
-      cur_light->doLighting( obj_hit, main_scene, main_view, obj_illum );
+      cur_light->doLighting( obj_hit, main_scene, main_view, obj_illum, view_loc );
       cur_light = cur_light -> next;
     }
+    
   } else {
     obj_illum->r = 0.0;
     obj_illum->g = 0.0;
     obj_illum->b = 0.0;
   }
+  
+  delete ref_illum;
+  delete ref_obj_hit;
 }

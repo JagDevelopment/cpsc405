@@ -27,7 +27,7 @@ class Light {
     Light();
     ~Light();
     virtual Pixel_t getColor() = 0;
-    virtual void doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum) = 0;
+    virtual void doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc) = 0;
 };
 
 #endif

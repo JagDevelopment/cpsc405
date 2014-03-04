@@ -24,7 +24,7 @@ Pixel_t PointLight::getColor() {
   return this->color;
 }
 
-void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum) {
+void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc) {
   Pixel_t light_color = this->color;
   Pixel_t obj_color = hit_obj->hit_color;
   /*
@@ -36,7 +36,7 @@ void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen
 
   Vector3d light_ray = ( this->point - hit_obj->hit_point ).normalize();
   Vector3d hit_normal = hit_obj->hit_normal;
-  Vector3d view_ray = (hit_obj->hit_point - main_view->getViewPoint()).normalize();  
+  Vector3d view_ray = (hit_obj->hit_point - view_loc).normalize();  
 
   // Check for shadow blocking light_color
   SceneObj* cur_obj = main_scene->headPoly;
@@ -44,7 +44,7 @@ void PointLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen
   
   while ( cur_obj != NULL ) {
     if( cur_obj != hit_obj->hit_object ) {
-      cur_obj->hit( hit_obj->hit_point, (this->point - hit_obj->hit_point).normalize(), test_obj );  
+      cur_obj->hit( this->point, (hit_obj->hit_point - this->point).normalize(), test_obj );  
     }
     cur_obj = cur_obj->next;
   }

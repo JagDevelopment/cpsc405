@@ -27,7 +27,7 @@ Pixel_t ParallelLight::getColor() {
 // I should probably collapse this and pointlight's mirror function into one function
 // And make it dynamic based on a light_ray depending on the type of light
 
-void ParallelLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum) {
+void ParallelLight::doLighting(Object_hit_t *hit_obj, Scene *main_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc) {
   Pixel_t light_color = this->color;
   Pixel_t obj_color = hit_obj->hit_color;
   int spec_exp = hit_obj->hit_object->getExponent();
