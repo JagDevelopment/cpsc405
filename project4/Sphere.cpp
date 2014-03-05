@@ -2,8 +2,8 @@
 
 /*
 Name: Kevin Haynie
-Date: 2/20/2014
-Project: 3 - Looking a Bit Shady!
+Date: 3/3/2014
+Project: 4 - Ooh, shiny!
 Filename: Sphere.cpp
 */
 
