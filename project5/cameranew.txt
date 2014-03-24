@@ -1,0 +1,21 @@
+viewpoint 0.0 0.0 0.5
+v_dir 0.0 0.0 -1.0
+v_up 0.0 0.1 0.0
+focal_length 0.5
+aspect_ratio 1.25
+screen_width .5  
+pixwidth 500
+viewmode 1
+// 0 - l - ortho / parallel    1 - v - perspective
+
+pointlight
+point -1.0 1.0 5.0
+color 0.4 0.4 0.8
+
+pointlight
+point 2.0 0.5 0.0
+color 0.8 0.8 0.2
+
+pointlight
+point 1.0 0.5 -5.0
+color 0.8 0.8 0.2
