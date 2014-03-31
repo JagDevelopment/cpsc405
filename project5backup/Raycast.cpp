@@ -227,12 +227,12 @@ int main( int argc, char *argv[] ) {
         icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(0);
       } else {
         //cout << "Writing color r: " << obj_illum->r << ", g: " << obj_illum->g << ", b: " << obj_illum->b << "." << endl;
-        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_illum->r);
-        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_illum->g);
-        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_illum->b);
-        //icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(255);
-        //icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(0);
-        //icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(0);
+        //icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(obj_illum->r);
+        //icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(obj_illum->g);
+        //icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(obj_illum->b);
+        icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(255);
+        icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(0);
+        icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(0);
       }
       free(obj_hit);
       free(obj_illum);
@@ -383,7 +383,6 @@ int w = glutGet( GLUT_WINDOW_WIDTH );
 
 void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* main_scene, PolySurf* poly_scene, ViewScreen* main_view, Pixel_t* obj_illum, int depth) {
   Pixel_t *ref_illum = new Pixel_t();
-  Pixel_t shaded_color;
   Collision *ref_obj_hit = new Collision();
 
   // Reached end of recursion
@@ -396,60 +395,56 @@ void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* m
 
   // While currently targetting a valid object, call hit function on object with correct viewmode
   while( cur_index < poly_scene->nfaces ) {    
-    // Move to next target
-    hitTriangle( origin, target_vector, obj_hit, poly_scene, cur_index );\
+  // Move to next target
+    hitTriangle( origin, target_vector, obj_hit, poly_scene, cur_index );
     cur_index++;
   } 
-                           
+  
+//  void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, PolySurf* scene, int index);
+  
+  // Create illumination value and scale by ambient
+
+                               
   // If object hit, do reflection, lighting, and set pixel value to color values
   
   if ( obj_hit->hit_distance < INFINITY && obj_hit -> hit_distance > 0.001 ) {
-
+    Vector3d new_origin = obj_hit->hit_point;
     Vector3d u_prime = target_vector - ( obj_hit->hit_normal * ( target_vector * obj_hit->hit_normal ) ) * 2;
     u_prime = u_prime.normalize();
-
-    /* We are not handling reflection for this assignment...
-   
-    Vector3d new_origin = obj_hit->hit_point;
-    
     ref_obj_hit->prev_hit_index = obj_hit->hit_index;
     shoot( new_origin, u_prime, ref_obj_hit, main_scene, poly_scene, main_view, ref_illum, depth + 1);
-     */
-     
+
     // TODO -- Ambient based on poly
     // Factor in ambient light at location
-  
-    /*
+    Color obj_ambient = poly_scene->materials[poly_scene->faces[obj_hit->hit_index].material].a;
+    int illum_model = poly_scene->materials[poly_scene->faces[obj_hit->hit_index].material].illum_model;
+    
     obj_illum->r = obj_ambient[0] * obj_hit->hit_color.r;
     obj_illum->g = obj_ambient[1] * obj_hit->hit_color.g;                                   
     obj_illum->b = obj_ambient[2] * obj_hit->hit_color.b;        
-    */
-    
+
     // TODO -- Sum based on Poly
     // Weight object illumination and reflection illumination, and sum
-
-    Vector3d view_loc = origin;
-    /*
     if ( illum_model == 1 || illum_model == 2 ) {
       // TODO -- CHECK AND VERIFY ILLUMINATION MODEL PROPERTIES
       obj_illum->r = (obj_illum->r * 0.3) + ( ref_illum->r * 0.7 );
       obj_illum->g = (obj_illum->g * 0.3) + ( ref_illum->g * 0.7 );
       obj_illum->b = (obj_illum->b * 0.3) + ( ref_illum->b * 0.7 );
     }
-    // MODIFIED FOR NON REFLECTIVITY
-
+    Vector3d view_loc;
     
     if ( depth == 0 ) {
       view_loc = main_view->getViewPoint();
     } else {
       view_loc = origin;
     }
-    */
-    shaded_color = shade( obj_hit, main_scene, poly_scene, main_view, obj_illum, view_loc );
-
-    obj_illum->r = shaded_color.r;
-    obj_illum->g = shaded_color.g;
-    obj_illum->b = shaded_color.b;
+    
+    Light *cur_light = main_scene->headLight;
+    while( cur_light != NULL ) {
+      cur_light->doLighting( obj_hit, main_scene, poly_scene, main_view, obj_illum, view_loc );
+      cur_light = cur_light -> next;
+    }
+    
   } else {
     obj_illum->r = 0.0;
     obj_illum->g = 0.0;
@@ -459,184 +454,6 @@ void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* m
   delete ref_illum;
   delete ref_obj_hit;
 }
-
-/*
-########################################################################
-########################################################################
-########################################################################
-########################################################################
- */
-
-Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc) {
-  
-  Pixel_t total_diffuse = Pixel_t(0.0, 0.0, 0.0);
-  Pixel_t total_specular = Pixel_t(0.0, 0.0, 0.0);
-  Pixel_t total_ambient = Pixel_t(0.0, 0.0, 0.0);
-  Pixel_t shaded;
-
-  Face *obj_face = &poly_scene->faces[hit_obj->hit_index];
-  Material *obj_material = &poly_scene->materials[obj_face->material];
-
-  double spec_exp = obj_material->exp;  
-  double texture_alpha = obj_material->alpha;
-  double ux;
-  double vx;
-  
-  int illum_model = obj_material->illum_model;
-  int tempindex, istextured = 0;
-  int uvtest = 0;
-  int maprow;
-  int mapcol;
-  int p_alpha;
-
-  Color obj_ambient = obj_material->a;
-  Color obj_diffuse = obj_material->d;
-  Color obj_specular = obj_material->s;
-  Color ambient = Color(0.3, 0.3, 0.3, 1.0);
-     
-  Vector2d uv0;
-  Vector2d uv1;
-  Vector2d uv2;
-
-  Vector3d hit_normal = hit_obj->hit_normal;
-  Vector3d view_ray = (hit_obj->hit_point - view_loc).normalize();              
-  
-  Pixmap *obj_amap = obj_material->amap;
-  Pixmap *obj_dmap = obj_material->dmap;
-  Pixmap *obj_smap = obj_material->smap;
-
-  if ( illum_model == 0 ) {
-    total_diffuse.r = obj_diffuse[0];
-    total_diffuse.g = obj_diffuse[1];
-    total_diffuse.b = obj_diffuse[2];
-    return total_diffuse;
-  }
-    
-  if ( (tempindex = obj_face->verts[0][2]) != -1 ) {
-    uv0 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  if ( (tempindex = obj_face->verts[1][2]) != -1 ) {
-    uv1 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  if ( (tempindex = obj_face->verts[2][2]) != -1 ) {
-    uv2 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  if( uvtest == 3 ) {
-    //cout << "u: " << hit_obj->u << " v: " << hit_obj->v << " w: " << hit_obj->w  << endl;
-    //cout << "uv0: " << uv0 << " uv1: " << uv1 << " uv2: " << uv2 << endl;
-    ux = (hit_obj->u * uv0[0]) + (hit_obj->v * uv1[0]) + (hit_obj->w * uv2[0]);
-    vx = (hit_obj->u * uv0[1]) + (hit_obj->v * uv1[1]) + (hit_obj->w * uv2[1]);   
-    istextured = 1;
-  }
-    
-  Light *cur_light = main_scene->headLight;
-  while( cur_light != NULL ) {
-    //cur_light->doLighting( obj_hit, main_scene, poly_scene, main_view, obj_illum, view_loc );
-
-    Pixel_t light_color = cur_light->getColor();
-
-    Vector3d light_point = cur_light->getPoint();
-    Vector3d light_ray = ( light_point - hit_obj->hit_point ).normalize();
- 
-    Collision* test_obj = new Collision();
-    int cur_index = 0;
-    
-    while ( cur_index < poly_scene->nfaces ) {
-      // TODO -- MODIFIED - MONITOR
-      if( cur_index != hit_obj->hit_index ) {
-        hitTriangle( light_point, (hit_obj->hit_point - light_point).normalize(), test_obj, poly_scene, cur_index );  
-      }
-      cur_index++;
-    }
-  
-    if ( test_obj->hit_distance > (hit_obj->hit_point - light_point).norm() ) {
-      
-      float dotprod = light_ray * hit_obj->hit_normal;
-      
-      // diffuse shading
-      if ( dotprod > 0 && ( illum_model == 1 || illum_model == 2)) {
-        total_diffuse.r += dotprod * light_color.r;
-        total_diffuse.g += dotprod * light_color.g;
-        total_diffuse.b += dotprod * light_color.b;
-        /*      
-        total_diffuse.r += ( dotprod * obj_diffuse[0] ) * light_color.r;
-        total_diffuse.g += ( dotprod * obj_diffuse[1] ) * light_color.g;
-        total_diffuse.b += ( dotprod * obj_diffuse[2] ) * light_color.b;
-        */
-      }
-        
-      Vector3d u_prime = light_ray - ( hit_normal * ( light_ray * hit_normal ) ) * 2;
-      u_prime = u_prime.normalize();
-      
-      dotprod = u_prime * view_ray;
-      
-      // specular shading
-      if ( dotprod > 0 && illum_model == 2) {
-        // TODO
-        total_specular.r += pow(dotprod, spec_exp) * light_color.r;
-        total_specular.g += pow(dotprod, spec_exp) * light_color.g;
-        total_specular.b += pow(dotprod, spec_exp) * light_color.b;
-      } 
-    }
-    cur_light = cur_light -> next;
-  }
-  
-  total_ambient.r = obj_ambient[0];
-  total_ambient.g = obj_ambient[1];
-  total_ambient.b = obj_ambient[2];
-  
-  // For these calculations, use the texture value (scaled by alpha) and the obj diffuse (scaled by alpha)
-  // 
-  
-  total_diffuse.r = total_diffuse.r * obj_diffuse[0];
-  total_diffuse.g = total_diffuse.g * obj_diffuse[1];
-  total_diffuse.b = total_diffuse.b * obj_diffuse[2];
-  
-  total_specular.r = total_specular.r * obj_specular[0];
-  total_specular.g = total_specular.g * obj_specular[1];
-  total_specular.b = total_specular.b * obj_specular[2];
-  
-  if ( istextured && (illum_model == 1 || illum_model == 2 )) {
-    maprow = (int)(vx * obj_dmap->NRows());
-    mapcol = (int)(ux * obj_dmap->NCols());
-    
-    p_alpha = obj_amap[0][maprow][mapcol][3];
-    //cout << "ux = " << ux << " and " << "maprow: " << maprow << "/" << obj_dmap->NRows() << endl;
-    //cout << "vx = " << vx << " and " << "mapcol: " << mapcol << "/" << obj_dmap->NCols() << endl;
-    total_ambient.r = ( 1 - p_alpha) * total_ambient.r + ( p_alpha * obj_amap[0][maprow][mapcol][0] );
-    total_ambient.g = ( 1 - p_alpha) * total_ambient.g + ( p_alpha * obj_amap[0][maprow][mapcol][1] );
-    total_ambient.b = ( 1 - p_alpha) * total_ambient.b + ( p_alpha * obj_amap[0][maprow][mapcol][2] );
-    
-    p_alpha = obj_dmap[0][maprow][mapcol][3];
-    total_diffuse.r = ( 1 - p_alpha) * total_diffuse.r + ( p_alpha * obj_dmap[0][maprow][mapcol][0] );
-    total_diffuse.g = ( 1 - p_alpha) * total_diffuse.g + ( p_alpha * obj_dmap[0][maprow][mapcol][1] );
-    total_diffuse.b = ( 1 - p_alpha) * total_diffuse.b + ( p_alpha * obj_dmap[0][maprow][mapcol][2] );
-    //cout << "Success!" << endl;
-  }
-  
-  if ( istextured && illum_model == 2 ) {
-    p_alpha = obj_smap[0][maprow][mapcol][3];
-    total_specular.r = ( 1 - p_alpha) * total_specular.r + ( p_alpha * obj_smap[0][maprow][mapcol][0] );
-    total_specular.g = ( 1 - p_alpha) * total_specular.g + ( p_alpha * obj_smap[0][maprow][mapcol][1] );
-    total_specular.b = ( 1 - p_alpha) * total_specular.b + ( p_alpha * obj_smap[0][maprow][mapcol][2] );  
-  }
-  
-  shaded.r = total_ambient.r + total_diffuse.r + total_specular.r;
-  shaded.g = total_ambient.g + total_diffuse.g + total_specular.g;
-  shaded.b = total_ambient.b + total_diffuse.b + total_specular.b;
-  
-  return shaded;    
-} // shade
-
-/*
-########################################################################
-########################################################################
-########################################################################
-########################################################################
- */
 
 //
 // Load the scene and get the centroid and bounding box
@@ -654,39 +471,24 @@ void load_scene(PolySurf **scene, OBJFile &objfile){
 }
 
 void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, PolySurf* poly_scene, int index) {
-  int tempindex;
-  int normtest = 0;
-  
-  float u, v, w;                              // Barycentric Coords
-  float t, d;                                 // t = distance along ray, d = ?
-  
-  Vector3d p0, p1, p2;                        // Vertices
-  Vector3d n0, n1, n2;                        // Vertex Normals
-  Vector3d e01, e12, e20;                     // Edges (0->1, 1->2, 2->0)
-  Vector3d n;                                 // Normal of Triangle
-  Vector3d x;                                 // Hitpoint of Triangle
-  Vector3d u_ray = target_vector.normalize(); // Unit vector of target ray
+  float u, v, w;
+  float a, au, av;
+  float t, d;
+  Vector3d p0, p1, p2;
+  Vector3d n0, n1, n2;
+  Vector3d e01, e12, e20;
+  Vector3d tri_norm, vn, n;
+  Vector3d x;
+  Vector3d u_ray = target_vector.normalize();
 
   p0 = poly_scene->verts[poly_scene->faces[index].verts[0][0]];
   p1 = poly_scene->verts[poly_scene->faces[index].verts[1][0]];
   p2 = poly_scene->verts[poly_scene->faces[index].verts[2][0]];   
   
-  /* Store vertex normals in n0 - n2, value = -1 if DNE
-   */
-
-  if ( tempindex = poly_scene->faces[index].verts[0][1] != -1 ) {
-    n0 = poly_scene->norms[tempindex];
-    normtest++;
-  }
-  if ( tempindex = poly_scene->faces[index].verts[1][1] != -1 ) {
-    n1 = poly_scene->norms[tempindex];
-    normtest++;
-  }
-  if ( tempindex = poly_scene->faces[index].verts[2][1] != -1 ) {
-    n2 = poly_scene->norms[tempindex];
-    normtest++; 
-  }
-    
+  n0 = poly_scene->verts[poly_scene->faces[index].verts[0][1]];
+  n1 = poly_scene->verts[poly_scene->faces[index].verts[1][1]];
+  n2 = poly_scene->verts[poly_scene->faces[index].verts[2][1]]; 
+  
   e01 = p1 - p0;
   e12 = p2 - p1;
   e20 = p0 - p2; 
@@ -696,6 +498,9 @@ void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Po
 
   u = v = w = 0.0;
   
+  tri_norm = (test01 % test02).normalize(); // Normal of Triangle/Plane
+  Vector3d test_tri_norm = (e01 % e20).normalize();
+
   // First, test to see if you hit the plane that the triangle is on
 
   n = (test01 % test02).normalize();          // normal of triangle
@@ -708,39 +513,57 @@ void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Po
   x = origin + (t * u_ray);
   
   double t1, t2, t3;
-  t1 = ((e01) % ( x - p0)) * n;
-  t2 = ((e12) % ( x - p1)) * n;
-  t3 = ((e20) % ( x - p2)) * n;
+  t1 = ((p1 - p0) % ( x - p0)) * n;
+  t2 = ((p2 - p1) % ( x - p1)) * n;
+  t3 = ((p0 - p2) % ( x - p2)) * n;
+  
+
   
   if ( t1 < 0.0 || t2 < 0.0 || t3 < 0.0 ) {
     // Outside of the triangle...
     return;
   }
   
-  float denom = (( test01 % test02 ) * n );
-  
-  /* Calculate Barycentric Coordinates
-   */
-
-  u = t2 / denom;
-  v = t3 / denom;
-  w = t1 / denom;
+  u = t2 / (((p1 - p0) % (p2 - p0)) * n );
+  v = t3 / (((p1 - p0) % (p2 - p0)) * n );
+  w = t1 / (((p1 - p0) % (p2 - p0)) * n );
   
   if ( t < obj_hit->hit_distance ) {
     obj_hit->hit_point = x;
     obj_hit->hit_index = index;
     obj_hit->hit_distance = t;
-    // TODO -- Do stuff if hit normals exist
-
-    if (normtest == 3) {
-      n = ( u * n0 ) + ( v * n1 ) + ( w * n2 );
-    } 
-
     obj_hit->hit_normal = n;
-    obj_hit->u = u;
-    obj_hit->v = v;
-    obj_hit->w = w;
   }
+  /* BEGIN FIRST TRY
+  
+  t = tri_norm * u_ray;
+
+  //if ( obj_hit->prev_hit_index != index ) {
+    if ( t != 0 ) { // hit 
+      t = -1.0 * ( (tri_norm * ( origin - p0 )) / t );
+      if ( t > 0) { // in front of viewscreen
+        if ( t < obj_hit->hit_distance ) { // Closest object, now to test if its inside triangle
+          
+          x = origin + ( t * u_ray );
+          vn = (p2 - p1) % (p1 - p0);
+          a = vn.norm();
+          n = vn/a;
+          u = ((p2-p1) % (x-p1))*(n/a);
+          v = ((p0-p2) % (x-p2))*(n/a);
+          w = 1 - u - v;
+          if( u >= 0.0 && v >= 0.0 && (u + v) <= 1.0 ) {
+            //printf("Hit...\n");
+            obj_hit->hit_index = index;
+            obj_hit->hit_distance = t;
+            obj_hit->hit_point = x;
+            obj_hit->hit_normal = tri_norm;
+            //obj_hit->hit_color = Color(255, 0, 0, 0);
+          }
+        }
+      }
+    }
+  //} 
+   END FIRST TRY */     
 }
 
 //

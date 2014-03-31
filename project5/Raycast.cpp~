@@ -588,9 +588,6 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
   total_ambient.g = obj_ambient[1];
   total_ambient.b = obj_ambient[2];
   
-  // For these calculations, use the texture value (scaled by alpha) and the obj diffuse (scaled by alpha)
-  // 
-  
   total_diffuse.r = total_diffuse.r * obj_diffuse[0];
   total_diffuse.g = total_diffuse.g * obj_diffuse[1];
   total_diffuse.b = total_diffuse.b * obj_diffuse[2];

@@ -8,13 +8,13 @@ pixwidth 500
 viewmode 1
 
 pointlight
-point -10.0 10.0 50.0
+point -1.0 1.0 5.0
 color 0.4 0.4 0.4
 
 pointlight
-point 20.0 5 0.0
+point 2.0 0.5 0.0
 color 0.4 0.4 0.4
 
 pointlight
-point 10.0 5 -50.0
+point 1.0 0.5 -5.0
 color 0.8 0.8 0.8

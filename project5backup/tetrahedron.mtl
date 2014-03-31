@@ -8,16 +8,11 @@
 newmtl green
 Ka 0.0000 0.3000 0.0000
 Kd 0.0000 0.8000 0.0000
-Ks 0.2 0.2 0.2
-Ns 100
-illum 2
+illum 1
 
 newmtl green_flag
 Ka 0.3000 0.3000 0.3000
 Kd 0.8000 0.8000 0.8000
-Ks 0.4 0.4 0.4
-Ns 100
-illum 2
+illum 1
 map_Ka brazil-flag.png
 map_Kd brazil-flag.png
-map_Ks brazil-flag.png
