@@ -14,7 +14,7 @@ C	= cpp
 H	= h
 CFLAGS 	= -g `Magick++-config --cppflags`
 LFLAGS	= -g `Magick++-config --ldflags`
-LDFLAGS = -L/usr/local/lib/ -lglut -lGL -lGLU -lMagick++-6.Q16 -lm
+LDFLAGS = -L/usr/local/lib/ -lglut -lGL -lGLU -lMagick++ -lm
 HFILES 	= Vector.${H} Utility.${H} ViewScreen.${H} SceneObj.${H} Scene.${H} Sphere.${H} Plane.${H} Light.${H} PointLight.${H} ParallelLight.${H}\
 	Color.${H} Face.${H} File.${H} Group.${H} ImageFile.${H} Material.${H} OBJFile.${H} Pixmap.${H} PolySurf.${H} MTLFile.${H} Line.${H}
 OFILES 	= Vector.o Utility.o ViewScreen.o SceneObj.o Scene.o Sphere.o Plane.o Light.o PointLight.o ParallelLight.o\
