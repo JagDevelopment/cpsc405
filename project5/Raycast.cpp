@@ -212,11 +212,11 @@ int main( int argc, char *argv[] ) {
       for( int k = 0; k < num_rays; k++ ) {
         rand_val = 0;  
         if ( num_rays > 1 )
-          rand_val = drand48() - 0.5;
+          rand_val = (drand48()) - 0.5;
         x_coord = (-v_met_w / 2.0 ) + ( pix_width * ( ((double)col + rand_val) + 0.5 ) );   
         rand_val = 0;
         if ( num_rays > 1 )
-          rand_val = drand48() - 0.5;
+          rand_val = (drand48()) - 0.5;
         y_coord = (-v_met_h / 2.0 ) + ( pix_height * ( ((double)row + rand_val) + 0.5 ) );
 
         p_center = c_0 + ( x_coord * u_x ) + ( y_coord * u_y );
@@ -240,14 +240,14 @@ int main( int argc, char *argv[] ) {
         // **********************************************************************      
         
         if ( obj_hit->hit_distance == INFINITY ) {
-          total_color->r = floatToPixmap(0);
-          total_color->g = floatToPixmap(0);
-          total_color->b = floatToPixmap(0);
+          total_color->r += floatToPixmap(0);
+          total_color->g += floatToPixmap(0);
+          total_color->b += floatToPixmap(0);
         } else {
           //cout << "Writing color r: " << obj_illum->r << ", g: " << obj_illum->g << ", b: " << obj_illum->b << "." << endl;
-          total_color->r = floatToPixmap(obj_illum->r);
-          total_color->g = floatToPixmap(obj_illum->g);
-          total_color->b = floatToPixmap(obj_illum->b);
+          total_color->r += obj_illum->r;
+          total_color->g += obj_illum->g;
+          total_color->b += obj_illum->b;
           //icontainer.pixmap[(row * v_pix_w) + col].r = floatToPixmap(255);
           //icontainer.pixmap[(row * v_pix_w) + col].g = floatToPixmap(0);
           //icontainer.pixmap[(row * v_pix_w) + col].b = floatToPixmap(0);
@@ -257,9 +257,9 @@ int main( int argc, char *argv[] ) {
 
       } // for
 
-      icontainer.pixmap[(row * v_pix_w) + col].r = (total_color->r/num_rays);
-      icontainer.pixmap[(row * v_pix_w) + col].g = (total_color->g/num_rays);
-      icontainer.pixmap[(row * v_pix_w) + col].b = (total_color->b/num_rays);
+      icontainer.pixmap[(row * v_pix_w) + col].r = (floatToPixmap(total_color->r/num_rays));
+      icontainer.pixmap[(row * v_pix_w) + col].g = (floatToPixmap(total_color->g/num_rays));
+      icontainer.pixmap[(row * v_pix_w) + col].b = (floatToPixmap(total_color->b/num_rays));
       
       free(total_color);
     }
@@ -412,6 +412,7 @@ void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* m
   Pixel_t shaded_color;
   Collision *ref_obj_hit = new Collision();
 
+
   // Reached end of recursion
   if ( depth >= 8 ) {
     return;
@@ -471,6 +472,9 @@ void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* m
       view_loc = origin;
     }
     */
+
+
+    
     shaded_color = shade( obj_hit, main_scene, poly_scene, main_view, obj_illum, view_loc );
 
     obj_illum->r = shaded_color.r;
@@ -505,11 +509,11 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
 
   double spec_exp = obj_material->exp;  
   double texture_alpha = obj_material->alpha;
-  double ux;
-  double vx;
+  double ux = hit_obj->u;
+  double vx = hit_obj->v;
   
   int illum_model = obj_material->illum_model;
-  int tempindex, istextured = 0;
+  int istextured = hit_obj->istextured;
   int uvtest = 0;
   int maprow;
   int mapcol;
@@ -518,58 +522,26 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
   Color obj_ambient = obj_material->a;
   Color obj_diffuse = obj_material->d;
   Color obj_specular = obj_material->s;
-  Color ambient = Color(0.3, 0.3, 0.3, 1.0);
-     
-  Vector2d uv0;
-  Vector2d uv1;
-  Vector2d uv2;
 
-  Vector3d hit_normal = hit_obj->hit_normal;
+  Vector3d hit_normal = hit_obj->hit_normal.normalize();
   
-  Vector3d view_ray = (hit_obj->hit_point - view_loc).normalize();              
-  float test = hit_normal * view_ray;
+  Vector3d view_ray = (view_loc - hit_obj->hit_point ).normalize();              
+ 
+  // CHANGE THIS LATER? TODO
+  /*
   if ( test >= 0.0 ) {
-   hit_normal = -hit_normal;
-  }
+    hit_normal = -hit_normal;
+  } */
+  
   Pixmap *obj_amap = obj_material->amap;
   Pixmap *obj_dmap = obj_material->dmap;
   Pixmap *obj_smap = obj_material->smap;
-    
-  if ( (tempindex = obj_face->verts[0][2]) != -1 ) {
-    uv0 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  if ( (tempindex = obj_face->verts[1][2]) != -1 ) {
-    uv1 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  if ( (tempindex = obj_face->verts[2][2]) != -1 ) {
-    uv2 = poly_scene->uvs[tempindex];
-    uvtest++;
-  }
-  
-  /* MOVE INTO HIT TRIANGLE FUNCTION */
-  
-  if( uvtest == 3 ) {
-    //cout << "u: " << hit_obj->u << " v: " << hit_obj->v << " w: " << hit_obj->w  << endl;
-    //cout << "uv0: " << uv0 << " uv1: " << uv1 << " uv2: " << uv2 << endl;
-    ux = (hit_obj->u * uv0[0]) + (hit_obj->v * uv1[0]) + (hit_obj->w * uv2[0]);
-    vx = (hit_obj->u * uv0[1]) + (hit_obj->v * uv1[1]) + (hit_obj->w * uv2[1]);   
-    istextured = 1;
-  }
-    
+
   Light *cur_light = main_scene->headLight;
   while( cur_light != NULL ) {
     //cur_light->doLighting( obj_hit, main_scene, poly_scene, main_view, obj_illum, view_loc );
-
-    Pixel_t light_color = cur_light->getColor();
-
-    Vector3d light_point = cur_light->getPoint();
-    Vector3d light_ray = ( light_point - hit_obj->hit_point ).normalize();
- 
-    Collision* test_obj = new Collision();
-    int cur_index = 0;
-    
+   
+    /* SHADOW TEST */ /*
     while ( cur_index < poly_scene->nfaces ) {
       // TODO -- MODIFIED - MONITOR
       if( cur_index != hit_obj->hit_index ) {
@@ -577,10 +549,21 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
       }
       cur_index++;
     }
+     */
+     
+    Pixel_t light_color = cur_light->getColor();
+
+    Vector3d light_point = cur_light->getPoint();
+    Vector3d light_ray = ( hit_obj->hit_point - light_point ).normalize();
+ 
+    Collision* test_obj = new Collision();
+    int cur_index = 0;
+    
+
   
-    if ( test_obj->hit_distance > (hit_obj->hit_point - light_point).norm() ) {
+    if ( 1 ) {
       
-      float dotprod = light_ray * hit_normal;
+      float dotprod = -(light_ray * hit_normal);
       
       // diffuse shading
       
@@ -588,101 +571,126 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
         total_diffuse.r += dotprod * light_color.r;
         total_diffuse.g += dotprod * light_color.g;
         total_diffuse.b += dotprod * light_color.b;
-       
-        /*     OLD CODE
-        total_diffuse.r += ( dotprod * obj_diffuse[0] ) * light_color.r;
-        total_diffuse.g += ( dotprod * obj_diffuse[1] ) * light_color.g;
-        total_diffuse.b += ( dotprod * obj_diffuse[2] ) * light_color.b;
-        */
       }
         
-      Vector3d u_prime = -light_ray + 2 * ( hit_normal * ( light_ray * hit_normal ) );
-      u_prime = u_prime.normalize();
-      
-      dotprod = u_prime * -view_ray;
-      
+      //Vector3d u_prime = light_ray + 2 * ( hit_normal * ( light_ray * hit_normal ) );
+      Vector3d u_prime = ( light_ray * hit_normal ) * hit_normal;
+
+      u_prime = ( light_ray - u_prime ) - u_prime; 
+      dotprod = (u_prime * view_ray);      
+
       // specular shading
       if ( dotprod > 0 && illum_model == 2) {
-        // TODO
         total_specular.r += pow(dotprod, spec_exp) * light_color.r;
         total_specular.g += pow(dotprod, spec_exp) * light_color.g;
         total_specular.b += pow(dotprod, spec_exp) * light_color.b;
+
       } 
     }
     cur_light = cur_light -> next;
   }
+/*
+    cout << "d r: " << total_diffuse.r << endl;
+    cout << "d g: " << total_diffuse.g << endl;
+    cout << "d b: " << total_diffuse.b << endl;
+  */
   
-  
+/*
+    cout << "d r: " << total_specular.r << endl;
+    cout << "d g: " << total_specular.g << endl;
+    cout << "d b: " << total_specular.b << endl;
+  */
   if ( istextured ) {
     maprow = (int)(vx * obj_dmap->NRows());
-    mapcol = (int)(ux * obj_dmap->NCols());  
+    mapcol = (int)(ux * obj_dmap->NCols());    
   }
-
-  if ( istextured && illum_model == 0 ) {
-    total_diffuse.r = (( 1 - p_alpha) * obj_diffuse[0] + ( p_alpha * obj_dmap[0][maprow][mapcol][0] ));
-    total_diffuse.g = (( 1 - p_alpha) * obj_diffuse[1] + ( p_alpha * obj_dmap[0][maprow][mapcol][1] ));
-    total_diffuse.b = (( 1 - p_alpha) * obj_diffuse[2] + ( p_alpha * obj_dmap[0][maprow][mapcol][2] ));
-    return total_diffuse;
-  } else if ( illum_model == 0 ) {
-    total_diffuse.r = obj_diffuse[0];
-    total_diffuse.g = obj_diffuse[1];
-    total_diffuse.b = obj_diffuse[2];
-    return total_diffuse; 
+  
+  if ( illum_model == 0 ) {
+    if ( istextured ) {
+      p_alpha = obj_dmap[0][maprow][mapcol][3]/255.0;
+      total_diffuse.r = (( 1 - p_alpha) * obj_diffuse[0] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][0]/255.0) ));
+      total_diffuse.g = (( 1 - p_alpha) * obj_diffuse[1] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][1]/255.0) ));
+      total_diffuse.b = (( 1 - p_alpha) * obj_diffuse[2] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][2]/255.0) ));       
+    } else {
+      total_diffuse.r = obj_diffuse[0];
+      total_diffuse.g = obj_diffuse[1];
+      total_diffuse.b = obj_diffuse[2];    
+    }
   }
+  
+  if ( illum_model >= 1 ) {
+    if ( istextured ) {
+      p_alpha = obj_dmap[0][maprow][mapcol][3]/255.0;
+      total_diffuse.r = (( 1 - p_alpha) * obj_diffuse[0] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][0]/255.0) )) * total_diffuse.r;
+      total_diffuse.g = (( 1 - p_alpha) * obj_diffuse[1] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][1]/255.0) )) * total_diffuse.g;
+      total_diffuse.b = (( 1 - p_alpha) * obj_diffuse[2] + ( p_alpha * ((float)obj_dmap[0][maprow][mapcol][2]/255.0) )) * total_diffuse.b;    
       
-  if ( istextured && (illum_model == 1 || illum_model == 2 )) {
-
-    p_alpha = obj_amap[0][maprow][mapcol][3];
-    //cout << "ux = " << ux << " and " << "maprow: " << maprow << "/" << obj_dmap->NRows() << endl;
-    //cout << "vx = " << vx << " and " << "mapcol: " << mapcol << "/" << obj_dmap->NCols() << endl;
-    total_ambient.r = ( 1 - p_alpha) * obj_ambient[0] + ( p_alpha * obj_amap[0][maprow][mapcol][0] );
-    total_ambient.g = ( 1 - p_alpha) * obj_ambient[1] + ( p_alpha * obj_amap[0][maprow][mapcol][1] );
-    total_ambient.b = ( 1 - p_alpha) * obj_ambient[2] + ( p_alpha * obj_amap[0][maprow][mapcol][2] );
+      /* PURE MODEL */
+      p_alpha = obj_amap[0][maprow][mapcol][3]/255.0;
+      total_ambient.r = (( 1 - p_alpha) * obj_ambient[0] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][0]/255.0) ));
+      total_ambient.g = (( 1 - p_alpha) * obj_ambient[1] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][1]/255.0) ));
+      total_ambient.b = (( 1 - p_alpha) * obj_ambient[2] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][2]/255.0) ));          
+      
+      /* SCALED MODEL
+      p_alpha = obj_amap[0][maprow][mapcol][3]/255.0;
+      total_ambient.r = ((( 1 - p_alpha) * obj_ambient[0] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][0]/255.0) )) * obj_ambient[0]);
+      total_ambient.g = ((( 1 - p_alpha) * obj_ambient[1] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][1]/255.0) )) * obj_ambient[1]);
+      total_ambient.b = ((( 1 - p_alpha) * obj_ambient[2] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][2]/255.0) )) * obj_ambient[2]);
+      */
+    } else {
+      total_ambient.r = obj_ambient[0];
+      total_ambient.g = obj_ambient[1];
+      total_ambient.b = obj_ambient[2];
     
-    p_alpha = obj_dmap[0][maprow][mapcol][3];
-    total_diffuse.r = (( 1 - p_alpha) * obj_diffuse[0] + ( p_alpha * obj_dmap[0][maprow][mapcol][0] )) * total_diffuse.r;
-    total_diffuse.g = (( 1 - p_alpha) * obj_diffuse[1] + ( p_alpha * obj_dmap[0][maprow][mapcol][1] )) * total_diffuse.g;
-    total_diffuse.b = (( 1 - p_alpha) * obj_diffuse[2] + ( p_alpha * obj_dmap[0][maprow][mapcol][2] )) * total_diffuse.b;
-
-    //cout << "Success!" << endl;
-  } else if (illum_model == 1 || illum_model == 2) {
-    
-    total_ambient.r = obj_ambient[0];
-    total_ambient.g = obj_ambient[1];
-    total_ambient.b = obj_ambient[2];
-  
-    total_diffuse.r = obj_diffuse[0] * total_diffuse.r;
-    total_diffuse.g = obj_diffuse[1] * total_diffuse.g;
-    total_diffuse.b = obj_diffuse[2] * total_diffuse.b;
+      total_diffuse.r = obj_diffuse[0] * total_diffuse.r;
+      total_diffuse.g = obj_diffuse[1] * total_diffuse.g;
+      total_diffuse.b = obj_diffuse[2] * total_diffuse.b;
+    }
   }
   
-  if ( istextured && illum_model == 2 ) {
-    p_alpha = obj_smap[0][maprow][mapcol][3];
-
-    total_specular.r = (( 1 - p_alpha) * obj_specular[0] + ( p_alpha * obj_smap[0][maprow][mapcol][0] )) * total_specular.r;
-    total_specular.g = (( 1 - p_alpha) * obj_specular[1] + ( p_alpha * obj_smap[0][maprow][mapcol][1] )) * total_specular.g;
-    total_specular.b = (( 1 - p_alpha) * obj_specular[2] + ( p_alpha * obj_smap[0][maprow][mapcol][2] )) * total_specular.b;
-  } else if ( illum_model == 2 ) {
-    total_specular.r = obj_specular[0] * total_specular.r;
-    total_specular.g = obj_specular[1] * total_specular.g;
-    total_specular.b = obj_specular[2] * total_specular.b;
-
-  }
-  
-  if ( illum_model == 2 ) {
-    shaded.r = total_ambient.r + total_diffuse.r + total_specular.r;
-    shaded.g = total_ambient.g + total_diffuse.g + total_specular.g;
-    shaded.b = total_ambient.b + total_diffuse.b + total_specular.b;
-  } else {
-    shaded.r = total_ambient.r + total_diffuse.r;
-    shaded.g = total_ambient.g + total_diffuse.g;
-    shaded.b = total_ambient.b + total_diffuse.b;
+  if ( illum_model >= 2 ) {
+    if ( istextured ) {
+      
+      p_alpha = obj_smap[0][maprow][mapcol][3]/255.0;
+      total_specular.r = (( 1 - p_alpha) * obj_specular[0] + ( p_alpha * ((float)obj_smap[0][maprow][mapcol][0]/255.0) )) * total_specular.r;
+      total_specular.g = (( 1 - p_alpha) * obj_specular[1] + ( p_alpha * ((float)obj_smap[0][maprow][mapcol][1]/255.0) )) * total_specular.g;
+      total_specular.b = (( 1 - p_alpha) * obj_specular[2] + ( p_alpha * ((float)obj_smap[0][maprow][mapcol][2]/255.0) )) * total_specular.b;
+      
+    } else {
+      total_specular.r = obj_specular[0] * total_specular.r;
+      total_specular.g = obj_specular[1] * total_specular.g;
+      total_specular.b = obj_specular[2] * total_specular.b;    
+    }  
   }
   /*
-    shaded.r = total_diffuse.r;
-    shaded.g = total_diffuse.g;
-    shaded.b = total_diffuse.b;
-  */  
+  shaded.r = total_ambient.r + total_diffuse.r + total_specular.r;
+  shaded.g = total_ambient.g + total_diffuse.g + total_specular.g;
+  shaded.b = total_ambient.b + total_diffuse.b + total_specular.b;
+  */
+  
+  shaded.r = total_ambient.r + total_diffuse.r;
+  shaded.g = total_ambient.g + total_diffuse.g;
+  shaded.b = total_ambient.b + total_diffuse.b;
+  
+  /*
+  shaded.r = total_ambient.r;
+  shaded.g = total_ambient.g;
+  shaded.b = total_ambient.b;
+  */    
+  /*
+  shaded.r = total_specular.r;
+  shaded.g = total_specular.g;
+  shaded.b = total_specular.b;
+
+  /*
+  shaded.r = total_diffuse.r;
+  shaded.g = total_diffuse.g;
+  shaded.b = total_diffuse.b;
+  /*
+  */
+  
+    
+  
   return shaded;    
 } // shade
 
@@ -709,11 +717,12 @@ void load_scene(PolySurf **scene, OBJFile &objfile){
 }
 
 void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, PolySurf* poly_scene, int index) {
-  int tempindex;
+  int tempindex = 0;
   int normtest = 0;
+  int uvtest = 0;
   
   float u, v, w;                              // Barycentric Coords
-  float t, d;                                 // t = distance along ray, d = ?
+  float t;                                    // t = distance along ray, d = ?
   
   Vector3d p0, p1, p2;                        // Vertices
   Vector3d n0, n1, n2;                        // Vertex Normals
@@ -721,6 +730,12 @@ void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Po
   Vector3d n;                                 // Normal of Triangle
   Vector3d x;                                 // Hitpoint of Triangle
   Vector3d u_ray = target_vector.normalize(); // Unit vector of target ray
+  
+  Face *obj_face = &poly_scene->faces[index];
+  
+  Vector2d uv0;
+  Vector2d uv1;
+  Vector2d uv2;
 
   p0 = poly_scene->verts[poly_scene->faces[index].verts[0][0]];
   p1 = poly_scene->verts[poly_scene->faces[index].verts[1][0]];
@@ -768,13 +783,6 @@ void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Po
   t1 = ((e01) % ( x - p0)) * n;
   t2 = ((e12) % ( x - p1)) * n;
   t3 = ((e20) % ( x - p2)) * n;
-  
-  /*
-  if ( t1 < 0.0 || t2 < 0.0 || t3 < 0.0 ) {
-    // Outside of the triangle...
-    return;
-  }
-   UNNEEDED */
    
   float denom = (( test01 % test02 ) * n );
   
@@ -800,11 +808,33 @@ void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Po
     } 
 
     obj_hit->hit_normal = n;
-    
+  
     /* COLLECT TEXTURE COORDINATES HERE (RATHER THAN IN SHADER ) -- DUMP BARYCENTRIC COORDINATES IF TEX COORDS EXIST */
     obj_hit->u = u;
     obj_hit->v = v;
-    obj_hit->w = w;
+    
+    if ( (tempindex = obj_face->verts[0][2]) != -1 ) {
+      uv0 = poly_scene->uvs[tempindex];
+      uvtest++;
+    }
+    if ( (tempindex = obj_face->verts[1][2]) != -1 ) {
+      uv1 = poly_scene->uvs[tempindex];
+      uvtest++;
+    }
+    if ( (tempindex = obj_face->verts[2][2]) != -1 ) {
+      uv2 = poly_scene->uvs[tempindex];
+      uvtest++;
+    }
+  
+    if( uvtest == 3 ) {
+      //cout << "u: " << hit_obj->u << " v: " << hit_obj->v << " w: " << hit_obj->w  << endl;
+      //cout << "uv0: " << uv0 << " uv1: " << uv1 << " uv2: " << uv2 << endl;
+      obj_hit->u = (u * uv0[0] + v * uv1[0] + w * uv2[0]);
+      obj_hit->v = (u * uv0[1] + v * uv1[1] + w * uv2[1]);   
+      obj_hit->istextured = 1;
+    } else {
+      obj_hit->istextured = 0;
+    } 
   }
 }
 

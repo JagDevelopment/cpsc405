@@ -116,7 +116,7 @@ typedef struct Collision {
   Vector3d hit_uvw;
   float u;
   float v;
-  float w;
+  unsigned int istextured;
   Color hit_color;
   Collision() {
     hit_distance = INFINITY;
