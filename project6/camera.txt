@@ -1,0 +1,24 @@
+viewpoint 1.3 1.0 1.0
+v_dir -1.2 -1.3 -1.0
+v_up 0.0 0.1 0.0
+focal_length 0.5
+aspect_ratio 1.25
+screen_width 0.5  
+pixwidth 800
+viewmode 1
+
+pointlight
+point 2.0 1.5 3.0
+color .5 .5 .5
+
+#pointlight
+point 5.0 2.0 1.0
+color 0.4 0.4 0.4
+
+#pointlight
+point 2.0 3 0.0
+color 0.4 0.4 0.4
+
+#pointlight
+point 2.0 2 -2.0
+color 0.8 0.8 0.8
