@@ -627,9 +627,9 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
       
       /* PURE MODEL */
       p_alpha = obj_amap[0][maprow][mapcol][3]/255.0;
-      total_ambient.r = (( 1 - p_alpha) * obj_ambient[0] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][0]/255.0) ));
-      total_ambient.g = (( 1 - p_alpha) * obj_ambient[1] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][1]/255.0) ));
-      total_ambient.b = (( 1 - p_alpha) * obj_ambient[2] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][2]/255.0) ));          
+      total_ambient.r = (( 1 - p_alpha) * obj_ambient[0] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][0]/255.0) ))*0.1;
+      total_ambient.g = (( 1 - p_alpha) * obj_ambient[1] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][1]/255.0) ))*0.1;
+      total_ambient.b = (( 1 - p_alpha) * obj_ambient[2] + ( p_alpha * ((float)obj_amap[0][maprow][mapcol][2]/255.0) ))*0.1;          
       
       /* SCALED MODEL
       p_alpha = obj_amap[0][maprow][mapcol][3]/255.0;
@@ -662,16 +662,16 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
       total_specular.b = obj_specular[2] * total_specular.b;    
     }  
   }
-  /*
+  
   shaded.r = total_ambient.r + total_diffuse.r + total_specular.r;
   shaded.g = total_ambient.g + total_diffuse.g + total_specular.g;
   shaded.b = total_ambient.b + total_diffuse.b + total_specular.b;
-  */
   
+  /*
   shaded.r = total_ambient.r + total_diffuse.r;
   shaded.g = total_ambient.g + total_diffuse.g;
   shaded.b = total_ambient.b + total_diffuse.b;
-  
+  */
   /*
   shaded.r = total_ambient.r;
   shaded.g = total_ambient.g;
@@ -681,7 +681,7 @@ Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewS
   shaded.r = total_specular.r;
   shaded.g = total_specular.g;
   shaded.b = total_specular.b;
-
+  */
   /*
   shaded.r = total_diffuse.r;
   shaded.g = total_diffuse.g;

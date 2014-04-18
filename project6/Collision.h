@@ -18,12 +18,12 @@
 // surface normal at hit, texture coordinates, and material
 //
 struct Collision{
-  int objectid;
-  double t;
-  Vector3d x;
-  Vector2d uv;
-  Vector3d n;
-  Material *m;
+  int objectid; // ignore
+  double t;     // Distance along ray
+  Vector3d x;   // Hit Point
+  Vector2d uv;  // Texture Coords
+  Vector3d n;   // Hit normal (pre-interpolated)
+  Material *m;  // 
   
   Collision(): objectid(-1), t(INFINITY), m(NULL)
 	{}

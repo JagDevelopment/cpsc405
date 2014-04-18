@@ -40,8 +40,8 @@ bool Group::isNamed(char *gname){
 void Group::addFace(int f){
   if(maxfaces == nfaces)
     faces = makespace <int> (maxfaces, faces);
-  
   faces[nfaces++] = f;
+
 }
 
 ostream& operator<< (ostream& os, const Group& g){

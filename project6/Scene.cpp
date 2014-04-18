@@ -34,7 +34,7 @@ void Scene::loadPointLight( ifstream& infile ) {
   string buffer;
   
   Vector3d point;
-  Pixel_t* color = new Pixel_t();
+  Color color = *(new Color());
     
   while ( param_count < 2 && infile >> buffer ) {
     flag = -1;
@@ -53,10 +53,10 @@ void Scene::loadPointLight( ifstream& infile ) {
         break;
       case 1: // color
         param_count++;
-        infile >> (color->r);
-        infile >> (color->g);
-        infile >> (color->b);
-        cout << "Loaded color: " << color->r << ", " << color->g << ", " << color->b << "." << endl;
+        infile >> (color[0]);
+        infile >> (color[1]);
+        infile >> (color[2]);
+        cout << "Loaded color: " << color[0] << ", " << color[1] << ", " << color[2] << "." << endl;
         break;
       default:
         break;  

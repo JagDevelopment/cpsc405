@@ -161,7 +161,7 @@ Collision Face::TriCollide(const Collision &c, PolySurf *p) const{
 Collision Face::QuadCollide(const Collision &c, PolySurf *p) const{
   Collision ctri;
   FaceVert verts[3];
-  
+
   for(int i = 0; i < 3; i++)
 	verts[i] = faceverts[i];
   ctri = TriCollide(c, verts, p);

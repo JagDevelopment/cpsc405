@@ -31,10 +31,10 @@ Collision BIHNode::LeafCollide(const Ray &r, Faceptr faces[], PolySurf *psurf) c
 }
 
 Collision BIHNode::RayCollide(const Ray &r, float tmin, float tmax, Faceptr faces[], PolySurf *psurf) const{
-
   // if we are at a leaf, then collide with the objects in the leaf
   if(axis == -1)
-	return LeafCollide(r, faces, psurf);
+	  return LeafCollide(r, faces, psurf);
+  
   
   Collision cl, cr;
   float tl, tr;
@@ -296,6 +296,8 @@ Collision BIHTree::RayCollide(const Ray &r) const{
   float tmin, tmax;
   Collision cnear;
   
+
+
   // nothing to do if the tree is empty
   if(root != NULL){
 	// find the ray entry and exit points of the BIH Tree bounding box
@@ -316,7 +318,6 @@ Collision BIHTree::RayCollide(const Ray &r) const{
 		  cnear = c;
 	  }
 	  */
-
 	  // shoot the ray at the root of the tree
 	  cnear = root->RayCollide(r, tmin, tmax, faces, psurf);
 	}

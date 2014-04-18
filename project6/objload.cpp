@@ -60,6 +60,7 @@ abort:
 // Main program to load the OBJ file and print the polygonal surface
 // data structure
 //
+
 int main(int argc, char* argv[]){
   OBJFile objfile;
   PolySurf *scene;	      // polygonal surface data structure

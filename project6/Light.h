@@ -26,9 +26,8 @@ class Light {
     Light *prev;
     Light();
     ~Light();
-    virtual Pixel_t getColor() = 0;
+    virtual Color getColor() = 0;
     virtual Vector3d getPoint() = 0;
-    virtual void doLighting(struct Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc) = 0;
 };
 
 #endif

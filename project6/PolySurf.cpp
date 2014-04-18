@@ -93,7 +93,7 @@ void PolySurf::addFaceVert(int f, int v, int n, int u){
 
 void PolySurf::setFaceNormal(int f){
   if(faces[f].nverts < 3)
-	faces[f].normal = Vector3d(0, 0, 0);
+  faces[f].normal = Vector3d(0, 0, 0);
   else{
 	Vector3d e0 = verts[faces[f].faceverts[1].v] - verts[faces[f].faceverts[0].v];
 	Vector3d e1 = verts[faces[f].faceverts[faces[f].nverts - 1].v] - 
@@ -182,6 +182,8 @@ void PolySurf::addFaceMaterial(int f, int m){
 
 void PolySurf::BuildBIHTree(){
   bihtree = new BIHTree(this);
+  for( int k = 0; k < this->NFaces(); k++ )
+    this->setFaceNormal(k);
 }
 
 Collision PolySurf::RayCollide(const Ray &r) const{

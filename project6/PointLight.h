@@ -16,13 +16,12 @@ Filename: PointLight.h
 class PointLight : public Light {
   private:
     Vector3d point;
-    Pixel_t color;
+    Color color;
   public:
-    PointLight(Vector3d point, Pixel_t *color);
+    PointLight(Vector3d point, Color color);
     ~PointLight();
     Vector3d getPoint();
-    Pixel_t getColor();
-    void doLighting(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc);
+    Color getColor();
 };
 
 #endif

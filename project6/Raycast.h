@@ -90,9 +90,8 @@ struct Collision;
 class Scene;
 class PolySurf;
 
-// FUNCTION PROTOTYPES
-void shoot(Vector3d origin, Vector3d target_vector, Collision* obj_hit, Scene* main_scene, PolySurf* poly_scene, ViewScreen* main_view, Pixel_t *obj_illum, int depth);
-Pixel_t shade(Collision *hit_obj, Scene *main_scene, PolySurf *poly_scene, ViewScreen *main_view, Pixel_t *obj_illum, Vector3d view_loc);
+// FUNCTION PROTOTYPEs
+Color shade(Collision hit_obj, Ray target_ray, Scene lights);
 void hitTriangle(Vector3d origin, Vector3d target_vector, Collision* obj_hit, PolySurf* poly_scene, int index);
 void handleReshape( int w, int h );
 void handleKey( unsigned char key, int x, int y );
@@ -101,5 +100,6 @@ void writeImage();
 unsigned char floatToPixmap( float val );
 void get_commandline(int argc, char *argv[], OBJFile &objfile);
 void load_scene(PolySurf **scene, OBJFile &objfile);
+void raytrace( ViewScreen *main_view, Scene* main_scene, int num_rays, int viewmode, PolySurf *scene );
 
 #endif

@@ -15,9 +15,9 @@ H	= h
 CFLAGS 	= -g `Magick++-config --cppflags`
 LFLAGS	= -g `Magick++-config --ldflags`
 LDFLAGS = -L/usr/local/lib/ -lglut -lGL -lGLU -lMagick++-6.Q16 -lm
-HFILES 	= Vector.${H} Utility.${H} ViewScreen.${H} Scene.${H} Light.${H} PointLight.${H} AABBox.${H} BIHTree.${H} Collision.${H}\
+HFILES 	= Vector.${H} Utility.${H} ViewScreen.${H} Scene.${H} Light.${H} PointLight.${H} Object.${H} AABBox.${H} BIHTree.${H} Collision.${H}\
 	Color.${H} Face.${H} File.${H} Group.${H} ImageFile.${H} Material.${H} OBJFile.${H} Pixmap.${H} PolySurf.${H} MTLFile.${H} Line.${H} Matrix.${H} Ray.${H}
-OFILES 	= Vector.o Utility.o ViewScreen.o Scene.o Light.o PointLight.o AABBox.o PolySurf.o BIHTree.o\
+OFILES 	= Vector.o Utility.o ViewScreen.o Scene.o Light.o PointLight.o Object.o AABBox.o PolySurf.o BIHTree.o\
 	Color.o Face.o File.o Group.o ImageFile.o Material.o OBJFile.o Pixmap.o MTLFile.o Line.o Matrix.o Ray.o
 PROJECT = Raycast
 PNAME   = objtrace
@@ -69,6 +69,9 @@ OBJFile.o: OBJFile.${C} OBJFile.${H}
 
 Pixmap.o: Pixmap.${C} Pixmap.${H}
 	${CC} $(CFLAGS) -c Pixmap.${C}
+
+Object.o: Object.${C} Object.${H}
+	${CC} $(CFLAGS) -c Object.${C}
 
 AABBox.o: AABBox.${C} AABBox.${H}
 	${CC} $(CFLAGS) -c AABBox.${C}
